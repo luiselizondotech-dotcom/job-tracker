@@ -69,6 +69,33 @@
   @keyframes shine { to{background-position:200% center} }
   .subtitle { color: var(--text-muted); font-size: 0.85rem; margin-top: 0; padding-left: 2px; }
 
+  /* ---- STARS ---- */
+  .star-rating { display:flex; gap:6px; margin-top:4px; }
+  .star { font-size:1.6rem; cursor:pointer; color:var(--text-dim,#64748b); transition:color 0.15s, transform 0.1s; }
+  .star.active { color:#f59e0b; }
+  .star:hover { transform:scale(1.2); }
+  /* ---- TAGS ---- */
+  .tags-input-wrap { border:1px solid var(--input-border); border-radius:8px; padding:6px 8px; background:var(--input-bg); display:flex; flex-wrap:wrap; gap:5px; min-height:38px; }
+  .tags-display { display:contents; }
+  .tag-chip { display:inline-flex; align-items:center; gap:4px; background:rgba(96,165,250,0.18); color:var(--text); border-radius:20px; padding:2px 10px 2px 10px; font-size:0.78rem; }
+  .tag-chip button { background:none; border:none; color:inherit; cursor:pointer; padding:0; font-size:0.85rem; line-height:1; opacity:0.6; }
+  .tag-chip button:hover { opacity:1; }
+  #tagsInput { border:none; outline:none; background:transparent; color:var(--text); font-size:0.85rem; flex:1; min-width:120px; }
+  .tag-pill { display:inline-block; background:rgba(96,165,250,0.15); color:var(--text); border-radius:20px; padding:1px 8px; font-size:0.72rem; margin-left:4px; }
+  /* ---- CALENDAR ---- */
+  .calendar-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .cal-day-name { text-align:center; font-size:0.75rem; color:var(--text-muted); padding:4px 0; font-weight:600; }
+  .cal-day { min-height:80px; border-radius:8px; border:1px solid var(--card-border); background:var(--card-bg); padding:5px 6px; font-size:0.8rem; }
+  .cal-day.today { border-color:#3b82f6; }
+  .cal-day.empty { background:transparent; border-color:transparent; }
+  .cal-day-num { font-size:0.75rem; color:var(--text-muted); margin-bottom:3px; }
+  .cal-event { border-radius:4px; padding:2px 5px; font-size:0.68rem; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; color:#fff; }
+  .cal-event.interview { background:#f59e0b; }
+  .cal-event.next { background:#10b981; }
+  .cal-event.applied { background:#3b82f6; }
+  .cal-legend { display:flex; align-items:center; gap:6px; margin-top:12px; font-size:0.8rem; color:var(--text-muted); }
+  .cal-dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
   /* ---- HEADER CONTROLS ---- */
   .header-controls {
     position: absolute; top: 20px; right: 0;
@@ -374,6 +401,7 @@
     <button class="tab active" data-view="table" data-i18n="tabTable">📋 Tabla</button>
     <button class="tab" data-view="kanban" data-i18n="tabKanban">🗂 Kanban</button>
     <button class="tab" data-view="dashboard" data-i18n="tabDashboard">📊 Dashboard</button>
+    <button class="tab" data-view="calendar" data-i18n="tabCalendar">📅 Calendario</button>
   </div>
 
   <div id="reminders"></div>
@@ -416,6 +444,8 @@
             <th data-i18n="colContact">Contacto</th>
             <th data-i18n="colNext">Próximo paso</th>
             <th>Link</th>
+            <th data-i18n="colRating">★</th>
+            <th data-i18n="colTags">Tags</th>
             <th data-i18n="colActions">Acciones</th>
           </tr>
         </thead>
@@ -450,6 +480,20 @@
         <h3 data-i18n="chartKPIs">📈 Métricas clave</h3>
         <div class="stats" id="kpis"></div>
       </div>
+    </div>
+  </div>
+
+  <div id="view-calendar" class="view hidden">
+    <div class="calendar-header">
+      <button class="btn btn-secondary" onclick="calPrev()">‹</button>
+      <h3 id="calTitle" style="margin:0;font-size:1.1rem;"></h3>
+      <button class="btn btn-secondary" onclick="calNext()">›</button>
+    </div>
+    <div class="calendar-grid" id="calGrid"></div>
+    <div class="cal-legend">
+      <span class="cal-dot" style="background:#f59e0b"></span><span data-i18n="sInterview">Entrevista</span>
+      <span class="cal-dot" style="background:#10b981;margin-left:12px"></span><span data-i18n="sOffer">Oferta/Próximo paso</span>
+      <span class="cal-dot" style="background:#3b82f6;margin-left:12px"></span><span data-i18n="sApplied">Aplicación</span>
     </div>
   </div>
 </div>
@@ -512,6 +556,25 @@
         <div class="full">
           <label data-i18n="fLink">Link de la vacante</label>
           <input type="url" id="link" placeholder="https://...">
+        </div>
+        <div class="full">
+          <label data-i18n="fRating">Evaluación post-entrevista</label>
+          <div class="star-rating" id="starRating">
+            <span class="star" data-val="1">★</span>
+            <span class="star" data-val="2">★</span>
+            <span class="star" data-val="3">★</span>
+            <span class="star" data-val="4">★</span>
+            <span class="star" data-val="5">★</span>
+          </div>
+          <input type="hidden" id="rating" value="0">
+        </div>
+        <div class="full">
+          <label data-i18n="fTags">Tags</label>
+          <div class="tags-input-wrap">
+            <div class="tags-display" id="tagsDisplay"></div>
+            <input type="text" id="tagsInput" placeholder="urgente, remoto, referido... Enter para agregar">
+          </div>
+          <input type="hidden" id="tags" value="">
         </div>
         <div class="full">
           <label data-i18n="fNotes">Notas</label>
@@ -724,6 +787,7 @@
       $('view-' + tab.dataset.view).classList.remove('hidden');
       if (tab.dataset.view === 'dashboard') renderDashboard();
       if (tab.dataset.view === 'kanban') renderKanban();
+      if (tab.dataset.view === 'calendar') renderCalendar();
     });
   });
 
@@ -839,6 +903,8 @@
         <td>${escapeHtml(j.contact || '-')}</td>
         <td>${escapeHtml(j.nextStep || '-')}${j.nextStepDate ? '<br><small style="color:#64748b">'+j.nextStepDate+'</small>' : ''}</td>
         <td>${j.link ? `<a class="link" href="${escapeHtml(j.link)}" target="_blank">↗</a>` : '-'}</td>
+        <td>${j.rating ? '★'.repeat(j.rating) + '<span style="opacity:0.25">' + '★'.repeat(5-j.rating) + '</span>' : '-'}</td>
+        <td>${j.tags ? j.tags.split(',').map(tg => tg.trim()).filter(Boolean).map(tg => `<span class="tag-pill">${escapeHtml(tg)}</span>`).join('') : '-'}</td>
         <td>
           <button class="action-btn edit" onclick="editJob('${j.id}')">✏</button>
           <button class="action-btn delete" onclick="confirmDelete('${j.id}')">🗑</button>
@@ -1022,10 +1088,14 @@
       $('modalTitle').textContent = tr.modalEdit;
       Object.keys(job).forEach(k => { if ($(k)) $(k).value = job[k] || ''; });
       $('jobId').value = job.id;
+      setStars(job.rating || 0);
+      renderTagChips(job.tags || '');
     } else {
       $('modalTitle').textContent = tr.modalNew;
       $('jobId').value = '';
       $('date').value = new Date().toISOString().split('T')[0];
+      setStars(0);
+      renderTagChips('');
     }
   }
   function closeModal() { $('modal').classList.remove('active'); }
@@ -1103,6 +1173,89 @@
     a.click();
   }
 
+  // ====== STARS ======
+  function setStars(val) {
+    $('rating').value = val;
+    document.querySelectorAll('.star').forEach(s => {
+      s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+    });
+  }
+  document.querySelectorAll('.star').forEach(s => {
+    s.addEventListener('click', () => setStars(parseInt(s.dataset.val)));
+    s.addEventListener('mouseover', () => {
+      document.querySelectorAll('.star').forEach(x => x.classList.toggle('active', parseInt(x.dataset.val) <= parseInt(s.dataset.val)));
+    });
+    s.addEventListener('mouseout', () => setStars(parseInt($('rating').value)));
+  });
+
+  // ====== TAGS ======
+  function renderTagChips(tagsStr) {
+    $('tags').value = tagsStr;
+    const arr = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(Boolean) : [];
+    $('tagsDisplay').innerHTML = arr.map(t =>
+      `<span class="tag-chip">${escapeHtml(t)}<button type="button" onclick="removeTag('${escapeHtml(t)}')">×</button></span>`
+    ).join('');
+  }
+  function removeTag(tag) {
+    const arr = ($('tags').value || '').split(',').map(t => t.trim()).filter(t => t && t !== tag);
+    renderTagChips(arr.join(','));
+  }
+  $('tagsInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const val = $('tagsInput').value.replace(/,/g,'').trim();
+      if (!val) return;
+      const existing = ($('tags').value || '').split(',').map(t => t.trim()).filter(Boolean);
+      if (!existing.includes(val)) existing.push(val);
+      renderTagChips(existing.join(','));
+      $('tagsInput').value = '';
+    }
+  });
+
+  // ====== CALENDAR ======
+  let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
+  const calMonthNames = { es: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+                          en: ['January','February','March','April','May','June','July','August','September','October','November','December'] };
+  const calDayNames  = { es: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'], en: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] };
+
+  function renderCalendar() {
+    const tr = t();
+    const names = calMonthNames[lang] || calMonthNames.es;
+    const days  = calDayNames[lang]  || calDayNames.es;
+    $('calTitle').textContent = `${names[calMonth]} ${calYear}`;
+    const grid = $('calGrid');
+    const today = new Date().toISOString().split('T')[0];
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+    // Index events by date
+    const events = {};
+    jobs.forEach(j => {
+      const addEv = (date, label, type) => {
+        if (!date) return;
+        if (!events[date]) events[date] = [];
+        events[date].push({ label, type });
+      };
+      if (j.date) addEv(j.date, j.company, 'applied');
+      if (j.nextStepDate) addEv(j.nextStepDate, `${j.company} – ${j.nextStep || tr.colNext}`, j.status === 'Entrevista' ? 'interview' : 'next');
+    });
+
+    let html = days.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+    for (let i = 0; i < firstDay; i++) html += `<div class="cal-day empty"></div>`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday = dateStr === today;
+      const evs = events[dateStr] || [];
+      html += `<div class="cal-day${isToday?' today':''}">
+        <div class="cal-day-num">${d}</div>
+        ${evs.map(ev => `<div class="cal-event ${ev.type}" title="${escapeHtml(ev.label)}">${escapeHtml(ev.label)}</div>`).join('')}
+      </div>`;
+    }
+    grid.innerHTML = html;
+  }
+  function calPrev() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
+  function calNext() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); }
+
   // ====== FORM SUBMIT ======
   $('jobForm').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -1121,6 +1274,8 @@
       nextStepDate: $('nextStepDate').value,
       lastUpdate: $('lastUpdate').value || new Date().toISOString().split('T')[0],
       link: $('link').value.trim(),
+      rating: parseInt($('rating').value) || 0,
+      tags: $('tags').value.trim(),
       notes: $('notes').value.trim()
     };
     if (id) { jobs = jobs.map(j => j.id === id ? data : j); toast(tr.toastUpdated); }
