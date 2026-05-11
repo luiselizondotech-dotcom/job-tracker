@@ -894,7 +894,7 @@
     empty.style.display='none';
     tbody.innerHTML = filtered.map((j,i) => `
       <tr style="animation-delay:${i*0.04}s">
-        <td><strong>${escapeHtml(j.company)}</strong><a class="li-btn" href="https://www.linkedin.com/company/${encodeURIComponent(j.company.toLowerCase().replace(/\s+/g,'-'))}" target="_blank" title="Ver en LinkedIn">in</a></td>
+        <td><strong>${escapeHtml(j.company)}</strong><a class="li-btn" href="https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(j.company)}" target="_blank" title="Buscar en LinkedIn">in</a></td>
         <td>${escapeHtml(j.position)}</td>
         <td><span class="status-badge status-${j.status.toLowerCase()}">${getStatusLabel(j.status)}</span></td>
         <td>${j.date || '-'}</td>
