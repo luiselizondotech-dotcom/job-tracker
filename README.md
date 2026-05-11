@@ -29,6 +29,12 @@
 
 ---
 
+<p align="center">
+  <img src="docs/screenshots/demo.gif" alt="Aplico demo" width="800"/>
+</p>
+
+---
+
 ## Screenshots
 
 ### Vista Tabla
