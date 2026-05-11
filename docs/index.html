@@ -8,6 +8,9 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://luiselizondotech-dotcom.github.io/job-tracker/">
 <title>Aplico - Job Tracker</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7B5EA7">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 90'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23E040FB'/%3E%3Cstop offset='50%25' stop-color='%237B5EA7'/%3E%3Cstop offset='100%25' stop-color='%233D5AFE'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolyline points='54,22 64,32 82,12' fill='none' stroke='url(%23g)' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Crect x='2' y='46' width='24' height='42' rx='5' fill='url(%23g)' opacity='0.4'/%3E%3Crect x='32' y='34' width='24' height='54' rx='5' fill='url(%23g)' opacity='0.7'/%3E%3Crect x='62' y='20' width='24' height='68' rx='5' fill='url(%23g)'/%3E%3C/svg%3E"/>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -211,6 +214,8 @@
   }
   .action-btn:hover { transform: scale(1.1); }
   .action-btn.edit:hover { background: #3b82f6; border-color: #3b82f6; color: white; }
+  .li-btn { display:inline-block; background:#0a66c2; color:white; font-size:0.65rem; font-weight:700; padding:1px 5px; border-radius:3px; text-decoration:none; margin-left:5px; vertical-align:middle; transition:opacity 0.2s; }
+  .li-btn:hover { opacity:0.8; }
   .action-btn.delete:hover { background: #ef4444; border-color: #ef4444; color: white; }
   a.link { color: #60a5fa; text-decoration: none; }
   a.link:hover { color: #a78bfa; text-decoration: underline; }
@@ -825,7 +830,7 @@
     empty.style.display='none';
     tbody.innerHTML = filtered.map((j,i) => `
       <tr style="animation-delay:${i*0.04}s">
-        <td><strong>${escapeHtml(j.company)}</strong></td>
+        <td><strong>${escapeHtml(j.company)}</strong><a class="li-btn" href="https://www.linkedin.com/company/${encodeURIComponent(j.company.toLowerCase().replace(/\s+/g,'-'))}" target="_blank" title="Ver en LinkedIn">in</a></td>
         <td>${escapeHtml(j.position)}</td>
         <td><span class="status-badge status-${j.status.toLowerCase()}">${getStatusLabel(j.status)}</span></td>
         <td>${j.date || '-'}</td>
@@ -1146,6 +1151,13 @@
   applyTheme();
   applyLang();
   renderAll();
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/job-tracker/service-worker.js');
+    });
+  }
 </script>
 </body>
 </html>
