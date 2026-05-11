@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta property="og:title" content="Job Tracker - Free Open Source">
+<meta property="og:title" content="Aplico - Job Tracker">
 <meta property="og:description" content="Track job applications offline. No signup, no backend. Table, Kanban & Dashboard views.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://luiselizondotech-dotcom.github.io/job-tracker/">
-<title>Job Tracker</title>
+<title>Aplico - Job Tracker</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -337,7 +337,23 @@
 <body>
 <div class="container">
   <header>
-    <h1>🚀 Job Application Tracker</h1>
+    <h1>
+      <svg width="120" height="44" viewBox="0 0 120 44" style="vertical-align:middle;margin-right:12px;" aria-label="Aplico logo">
+        <defs>
+          <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#E040FB"/>
+            <stop offset="50%" stop-color="#7B5EA7"/>
+            <stop offset="100%" stop-color="#3D5AFE"/>
+          </linearGradient>
+        </defs>
+        <!-- barras ascendentes -->
+        <rect x="0"  y="20" width="22" height="24" rx="5" fill="url(#lg)" opacity="0.4"/>
+        <rect x="30" y="11" width="22" height="33" rx="5" fill="url(#lg)" opacity="0.7"/>
+        <rect x="60" y="0"  width="22" height="44" rx="5" fill="url(#lg)"/>
+        <!-- check sobre barra 3 -->
+        <polyline points="55,-12 67,-2 88,-18" fill="none" stroke="url(#lg)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(0,16)"/>
+      </svg>Aplico
+    </h1>
     <p class="subtitle" data-i18n="subtitle">Controla cada aplicación, entrevista y oferta</p>
     <div class="header-controls">
       <button class="lang-btn" id="langBtn" onclick="toggleLang()">🌐 EN</button>
