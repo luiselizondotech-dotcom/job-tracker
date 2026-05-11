@@ -33,22 +33,22 @@
 
 ### Vista Tabla
 <p align="center">
-<img src="https://luiselizondotech-dotcom.github.io/job-tracker/screenshots/table.png" alt="Vista tabla" width="800"/>
+<img src="docs/screenshots/table.png" alt="Vista tabla" width="800"/>
 </p>
 
 ### Vista Kanban
 <p align="center">
-<img src="https://luiselizondotech-dotcom.github.io/job-tracker/screenshots/kanban.png" alt="Vista kanban" width="800"/>
+<img src="docs/screenshots/kanban.png" alt="Vista kanban" width="800"/>
 </p>
 
 ### Dashboard & Embudo
 <p align="center">
-<img src="https://luiselizondotech-dotcom.github.io/job-tracker/screenshots/dashboard.png" alt="Dashboard" width="800"/>
+<img src="docs/screenshots/dashboard.png" alt="Dashboard" width="800"/>
 </p>
 
 ### Vista Calendario
 <p align="center">
-<img src="https://luiselizondotech-dotcom.github.io/job-tracker/screenshots/calendar.png" alt="Vista calendario" width="800"/>
+<img src="docs/screenshots/calendar.png" alt="Vista calendario" width="800"/>
 </p>
 
 ---
