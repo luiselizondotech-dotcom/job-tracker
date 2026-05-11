@@ -758,7 +758,7 @@
     const h = ['Empresa','Puesto','Estado','Fecha','Salario','Ubicación','Contacto','Próximo paso','Fecha paso','Link','Notas'];
     const rows = jobs.map(j => [j.company, j.position, j.status, j.date, j.salary, j.location, j.contact, j.nextStep, j.nextStepDate, j.link, j.notes]
       .map(v => `"${(v||'').replace(/"/g,'""')}"`).join(','));
-    downloadFile(['\uFEFF' + [h.join(','), ...rows].join('\n')].join(''), 'csv', 'text/csv');
+    downloadFile('\uFEFF' + [h.join(','), ...rows].join('\n'), 'csv', 'text/csv');
     toast('CSV exportado');
   }
   async function exportJSON() {
