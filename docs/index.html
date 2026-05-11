@@ -1028,14 +1028,8 @@
     const h = [tr.colCompany,tr.colPosition,tr.colStatus,tr.colDate,tr.colSalary,tr.colLocation,tr.colContact,tr.colNext,'Link',tr.fNotes];
     const rows = jobs.map(j => [j.company,j.position,j.status,j.date,j.salary,j.location,j.contact,j.nextStep,j.nextStepDate,j.link,j.notes]
       .map(v => `"${(v||'').replace(/"/g,'""')}"`).join(','));
-<<<<<<< HEAD
     downloadFile('\uFEFF' + [h.join(','), ...rows].join('\n'), 'csv', 'text/csv');
-    toast('CSV exportado');
-=======
-    downloadFile(['﻿' + [h.join(','), ...rows].join('
-')].join(''), 'csv', 'text/csv');
     toast(tr.toastCsv);
->>>>>>> 8451b81ef7b68c8ed39b81d50ea84e5bde010f2d
   }
   async function exportJSON() {
     const tr = t();
