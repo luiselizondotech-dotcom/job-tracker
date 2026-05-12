@@ -67,15 +67,21 @@
 | 🌐 | **Bilingüe:** Español / Inglés con un clic |
 | 🌙 | **Tema claro / oscuro** |
 | ⭐ | **Evaluación post-entrevista** de 1 a 5 estrellas |
-| 🏷️ | **Tags personalizables** por aplicación (urgente, remoto, referido…) |
+| 🏷️ | **Tags con búsqueda** — filtra por tag haciendo clic en cualquier pill |
+| ⏱️ | **Tiempo en cada etapa** — muestra cuántos días lleva una aplicación en su estado actual |
+| 📈 | **Gráfica de tasa de respuesta semanal** — identifica en qué semanas aplicar tiene mejor retorno |
+| 🃏 | **Kanban con empty state** — columnas vacías muestran un CTA para agregar aplicaciones |
+| 📝 | **Notas ricas en tabla** — saltos de línea respetados, tooltip con texto completo al hover |
+| 📄 | **Exportar PDF** — reporte con KPIs y tabla para compartir con recruiters o archivar |
+| 📱 | **Responsive mobile** — navegación inferior fija y sidebar deslizable en móvil |
 | 🔔 | **Recordatorios automáticos** — entrevistas próximas y aplicaciones sin respuesta |
-| 🔍 | **Filtros y búsqueda** por estado, ubicación y texto libre |
+| 🔍 | **Filtros y búsqueda** por estado, ubicación, tag y texto libre |
 | ↕️ | **Ordenamiento** por cualquier columna |
 | 🤖 | **Autocompletado** de empresa y puesto basado en historial |
 | 💼 | **Botón LinkedIn** — busca la empresa con un clic |
 | 📊 | **Stats en tiempo real:** total, por estado, tasas de conversión |
-| 💾 | **Export CSV** y backup / restore JSON |
-| 📱 | **PWA installable** — instálala desde Chrome sin app store |
+| 💾 | **Export CSV / JSON** y backup / restore |
+| 🌐 | **PWA installable** — instálala desde Chrome sin app store |
 | ⌨️ | **Atajo Ctrl+N** para nueva aplicación |
 | 🔒 | **100% privado** — nada se sube a ningún servidor |
 
@@ -132,24 +138,36 @@ job-tracker/
 
 ## Campos por aplicación
 
-Empresa, puesto, estado (Aplicado / Screening / Entrevista / Oferta / Rechazado), fecha, salario, ubicación, contacto, próximo paso con fecha, link de la vacante, evaluación 1-5 ⭐, tags personalizables y notas libres.
+Empresa, puesto, estado (Aplicado / Screening / Entrevista / Oferta / Rechazado), fecha, salario, ubicación, contacto, próximo paso con fecha, link de la vacante, evaluación 1–5 ⭐, tags personalizables y notas libres.
+
+---
+
+## Dashboard y métricas
+
+- **Embudo de conversión** — cuántas aplicaciones avanzan a cada etapa
+- **Aplicaciones por mes** — volumen mensual en barras
+- **Top empresas** — las empresas a las que más has aplicado
+- **Tasa de respuesta semanal** — % que recibió respuesta por semana ISO, para detectar cuándo aplicar rinde más
+- **KPIs:** tasa de entrevistas, tasa de ofertas, rechazos y aplicaciones activas
 
 ---
 
 ## Privacidad
 
-No hay backend. No hay analytics. No hay cookies de rastreo. Tus datos viven solo en localStorage de tu navegador o de la app Electron.
+No hay backend. No hay analytics. No hay cookies de rastreo. Tus datos viven solo en `localStorage` del navegador o de la app Electron.
 
 ---
 
 ## Tips para sacarle el máximo
 
 - Registra cada aplicación el mismo día que la envías.
-- Actualiza el estado apenas cambie — no lo dejes para después.
+- Actualiza el estado apenas cambie — el contador de días en etapa será más preciso.
 - Si tu tasa aplicado→entrevista es menor al 10%, revisa tu CV o filtra mejor las vacantes.
 - Si tu tasa entrevista→oferta es menor al 30%, practica entrevistas técnicas y conductuales.
-- Usa los tags para priorizar: `urgente`, `referido`, `remoto`.
-- Después de cada entrevista, usa las estrellas y las notas para comparar ofertas objetivamente.
+- Usa la gráfica semanal para ver en qué días recibes más respuestas.
+- Usa tags para priorizar: `urgente`, `referido`, `remoto`.
+- Después de cada entrevista usa las estrellas y notas para comparar ofertas objetivamente.
+- Exporta a PDF antes de cerrar un proceso de búsqueda para tener un historial permanente.
 
 ---
 
