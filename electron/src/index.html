@@ -579,6 +579,20 @@ a.link:hover { color: #a78bfa; text-decoration: underline; }
   font-weight: 500;
   margin: 0 2px;
 }
+.tag-pill-btn {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tag-pill-btn:hover {
+  background: var(--gradient-accent);
+  border-color: transparent;
+  color: white;
+}
+.tag-pill-btn.active {
+  background: var(--gradient-accent);
+  border-color: transparent;
+  color: white;
+}
 .tags-input-wrap {
   border: 1px solid var(--input-border);
   border-radius: var(--radius);
@@ -1041,6 +1055,9 @@ canvas { max-width: 100%; }
       <select id="filterLocation" onchange="renderTable()">
         <option value="" data-i18n="filterAllLocations">Todas las ubicaciones</option>
       </select>
+      <select id="filterTag" onchange="renderTable()">
+        <option value="" data-i18n="filterAllTags">Todos los tags</option>
+      </select>
     </div>
     <div class="topbar-right">
       <button class="btn btn-ghost" id="langBtn" onclick="toggleLang()">🌐 EN</button>
@@ -1245,7 +1262,7 @@ canvas { max-width: 100%; }
       btnNew: 'Nueva', btnCsv: 'CSV', btnBackup: 'Backup',
       btnRestore: 'Restaurar', btnClear: 'Limpiar',
       btnCancel: 'Cancelar', btnSave: 'Guardar', btnConfirm: 'Confirmar',
-      filterAll: 'Todos los estados', filterAllLocations: 'Todas las ubicaciones',
+      filterAll: 'Todos los estados', filterAllLocations: 'Todas las ubicaciones', filterAllTags: 'Todos los tags',
       sApplied: 'Aplicado', sInterview: 'Entrevista', sOffer: 'Oferta', sRejected: 'Rechazado',
       colCompany: 'Empresa', colPosition: 'Puesto', colStatus: 'Estado', colDate: 'Fecha',
       colSalary: 'Salario', colLocation: 'Ubicación', colContact: 'Contacto',
@@ -1289,7 +1306,7 @@ canvas { max-width: 100%; }
       btnNew: 'New', btnCsv: 'CSV', btnBackup: 'Backup',
       btnRestore: 'Restore', btnClear: 'Clear all',
       btnCancel: 'Cancel', btnSave: 'Save', btnConfirm: 'Confirm',
-      filterAll: 'All statuses', filterAllLocations: 'All locations',
+      filterAll: 'All statuses', filterAllLocations: 'All locations', filterAllTags: 'All tags',
       sApplied: 'Applied', sInterview: 'Interview', sOffer: 'Offer', sRejected: 'Rejected',
       colCompany: 'Company', colPosition: 'Position', colStatus: 'Status', colDate: 'Date',
       colSalary: 'Salary', colLocation: 'Location', colContact: 'Contact',
@@ -1382,6 +1399,13 @@ canvas { max-width: 100%; }
   function save() {
     localStorage.setItem('jobs', JSON.stringify(jobs));
     renderAll();
+  }
+
+  function daysInStage(job) {
+    const ref = job.statusDate || job.lastUpdate || job.date;
+    if (!ref) return null;
+    const ms = Date.now() - new Date(ref).getTime();
+    return Math.floor(ms / 86400000);
   }
 
   function toast(msg, type = 'success') {
@@ -1479,6 +1503,29 @@ canvas { max-width: 100%; }
       </div>`).join('');
   }
 
+  // ====== TAG FILTER ======
+  function updateTagFilter() {
+    const allTags = [...new Set(jobs.flatMap(j => j.tags ? j.tags.split(',').map(t => t.trim()).filter(Boolean) : []))].sort();
+    const sel = $('filterTag');
+    const cur = sel.value;
+    sel.innerHTML = '';
+    const def = document.createElement('option');
+    def.value = ''; def.dataset.i18n = 'filterAllTags';
+    def.textContent = t().filterAllTags || 'Todos los tags';
+    sel.appendChild(def);
+    allTags.forEach(tag => {
+      const opt = document.createElement('option');
+      opt.value = tag; opt.textContent = tag;
+      sel.appendChild(opt);
+    });
+    if (cur) sel.value = cur;
+  }
+
+  function filterByTag(tag) {
+    $('filterTag').value = $('filterTag').value === tag ? '' : tag;
+    renderTable();
+  }
+
   // ====== LOCATION FILTER ======
   function updateLocationFilter() {
     const locs = [...new Set(jobs.map(j => j.location).filter(Boolean))].sort();
@@ -1508,11 +1555,14 @@ canvas { max-width: 100%; }
     const q = $('search').value.toLowerCase();
     const fs = $('filterStatus').value;
     const fl = $('filterLocation').value;
+    const ft = $('filterTag').value;
     let filtered = jobs.filter(j => {
-      const mq = !q || j.company.toLowerCase().includes(q) || j.position.toLowerCase().includes(q);
+      const tags = j.tags ? j.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : [];
+      const mq = !q || j.company.toLowerCase().includes(q) || j.position.toLowerCase().includes(q) || tags.some(tg => tg.includes(q));
       const ms = !fs || j.status === fs;
       const ml = !fl || j.location === fl;
-      return mq && ms && ml;
+      const mt = !ft || tags.includes(ft.toLowerCase());
+      return mq && ms && ml && mt;
     });
     filtered = [...filtered].sort((a, b) => {
       const va = (a[sortKey] || '').toLowerCase();
@@ -1526,7 +1576,7 @@ canvas { max-width: 100%; }
       <tr>
         <td><strong>${escapeHtml(j.company)}</strong><a class="li-btn" href="https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(j.company)}" target="_blank" title="LinkedIn">in</a></td>
         <td>${escapeHtml(j.position)}</td>
-        <td><span class="status-badge status-${j.status.toLowerCase()}">${getStatusLabel(j.status)}</span></td>
+        <td><span class="status-badge status-${j.status.toLowerCase()}">${getStatusLabel(j.status)}</span>${(d => d !== null ? `<br><small style="color:var(--text-3);font-size:0.68rem">${d}d</small>` : '')(daysInStage(j))}</td>
         <td style="color:var(--text-2)">${j.date || '—'}</td>
         <td style="color:var(--text-2)">${escapeHtml(j.salary || '—')}</td>
         <td style="color:var(--text-2)">${escapeHtml(j.location || '—')}</td>
@@ -1534,7 +1584,7 @@ canvas { max-width: 100%; }
         <td style="color:var(--text-2)">${escapeHtml(j.nextStep || '—')}${j.nextStepDate ? '<br><small style="color:var(--text-3)">'+j.nextStepDate+'</small>' : ''}</td>
         <td>${j.link ? `<a class="link" href="${escapeHtml(j.link)}" target="_blank">↗</a>` : '—'}</td>
         <td style="color:var(--yellow)">${j.rating ? '★'.repeat(j.rating) : '—'}</td>
-        <td>${j.tags ? j.tags.split(',').map(tg => tg.trim()).filter(Boolean).map(tg => `<span class="tag-pill">${escapeHtml(tg)}</span>`).join('') : '—'}</td>
+        <td>${j.tags ? j.tags.split(',').map(tg => tg.trim()).filter(Boolean).map(tg => `<span class="tag-pill tag-pill-btn" onclick="filterByTag('${escapeHtml(tg)}')" title="Filtrar por ${escapeHtml(tg)}">${escapeHtml(tg)}</span>`).join('') : '—'}</td>
         <td>
           <button class="action-btn edit" onclick="editJob('${j.id}')">Edit</button>
           <button class="action-btn delete" onclick="confirmDelete('${j.id}')">Del</button>
@@ -1575,6 +1625,7 @@ canvas { max-width: 100%; }
                 <span>${j.date || ''}</span>
                 <span>${escapeHtml(j.salary || '')}</span>
               </div>
+              ${(d => d !== null ? `<div style="font-size:0.68rem;color:var(--text-3);margin-top:2px">${d}d en etapa</div>` : '')(daysInStage(j))}
             </div>`).join('')}
         </div>`;
     }).join('');
@@ -1591,6 +1642,7 @@ canvas { max-width: 100%; }
     if (job && job.status !== status) {
       job.status = status;
       job.lastUpdate = new Date().toISOString().split('T')[0];
+      job.statusDate = job.lastUpdate;
       save();
       toast(t().movedTo(status));
     }
@@ -1916,8 +1968,17 @@ canvas { max-width: 100%; }
       tags: $('tags').value.trim(),
       notes: $('notes').value.trim()
     };
-    if (id) { jobs = jobs.map(j => j.id === id ? data : j); toast(tr.toastUpdated); }
-    else { jobs.unshift(data); toast(tr.toastAdded); }
+    if (id) {
+      const prev = jobs.find(j => j.id === id);
+      if (prev && prev.status !== data.status) data.statusDate = new Date().toISOString().split('T')[0];
+      else if (prev) data.statusDate = prev.statusDate || prev.lastUpdate || prev.date;
+      jobs = jobs.map(j => j.id === id ? data : j);
+      toast(tr.toastUpdated);
+    } else {
+      data.statusDate = data.date || new Date().toISOString().split('T')[0];
+      jobs.unshift(data);
+      toast(tr.toastAdded);
+    }
     save(); closeModal();
   });
 
@@ -1935,6 +1996,7 @@ canvas { max-width: 100%; }
 
   function renderAll() {
     updateLocationFilter();
+    updateTagFilter();
     renderReminders(); renderStats(); renderTable();
     if (!$('view-kanban').classList.contains('hidden')) renderKanban();
     if (!$('view-dashboard').classList.contains('hidden')) renderDashboard();
@@ -1944,13 +2006,6 @@ canvas { max-width: 100%; }
   applyTheme();
   applyLang();
   renderAll();
-</script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker.js');
-    });
-  }
 </script>
 </body>
 </html>
