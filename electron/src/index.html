@@ -2,606 +2,1955 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Job Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:title" content="Aplico - Job Tracker">
+<meta property="og:description" content="Track job applications offline. No signup, no backend. Table, Kanban & Dashboard views.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://luiselizondotech-dotcom.github.io/job-tracker/">
+<title>Aplico - Job Tracker</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7B5EA7">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 90'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolyline points='54,22 64,32 82,12' fill='none' stroke='url(%23g)' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Crect x='2' y='46' width='24' height='42' rx='5' fill='url(%23g)' opacity='0.4'/%3E%3Crect x='32' y='34' width='24' height='54' rx='5' fill='url(%23g)' opacity='0.7'/%3E%3Crect x='62' y='20' width='24' height='68' rx='5' fill='url(%23g)'/%3E%3C/svg%3E"/>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-  /* ---- LIGHT MODE VARS ---- */
-  :root {
-    --bg-start: #0f172a; --bg-mid: #1e293b; --bg-end: #334155;
-    --text: #e2e8f0; --text-muted: #94a3b8; --text-dim: #64748b;
-    --card-bg: rgba(255,255,255,0.05); --card-border: rgba(255,255,255,0.1);
-    --input-bg: rgba(255,255,255,0.05); --input-border: rgba(255,255,255,0.15);
-    --table-head-bg: rgba(30,41,59,0.8); --table-row-hover: rgba(96,165,250,0.08);
-    --kanban-col-bg: rgba(255,255,255,0.03); --kanban-card-bg: rgba(30,41,59,0.8);
-    --modal-bg: linear-gradient(135deg, #1e293b, #0f172a); --modal-border: rgba(96,165,250,0.3);
-    --autocomplete-bg: #1e293b; --toast-shadow: rgba(16,185,129,0.4);
-    --reminder-bg: rgba(251,191,36,0.08); --reminder-border: rgba(251,191,36,0.3);
-    --btn-secondary-bg: rgba(255,255,255,0.1);
-  }
-  .light-mode {
-    --bg-start: #f1f5f9; --bg-mid: #e2e8f0; --bg-end: #cbd5e1;
-    --text: #0f172a; --text-muted: #475569; --text-dim: #64748b;
-    --card-bg: rgba(255,255,255,0.8); --card-border: rgba(0,0,0,0.1);
-    --input-bg: rgba(255,255,255,0.9); --input-border: rgba(0,0,0,0.2);
-    --table-head-bg: rgba(226,232,240,0.9); --table-row-hover: rgba(96,165,250,0.12);
-    --kanban-col-bg: rgba(255,255,255,0.6); --kanban-card-bg: rgba(255,255,255,0.9);
-    --modal-bg: linear-gradient(135deg, #f8fafc, #f1f5f9); --modal-border: rgba(59,130,246,0.3);
-    --autocomplete-bg: #ffffff; --toast-shadow: rgba(16,185,129,0.3);
-    --reminder-bg: rgba(251,191,36,0.12); --reminder-border: rgba(251,191,36,0.4);
-    --btn-secondary-bg: rgba(0,0,0,0.08);
-  }
+/* ─── TOKENS (Aplico Design System) ─────────────────── */
+:root {
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-mid) 50%, var(--bg-end) 100%);
-    background-size: 400% 400%;
-    animation: gradientShift 15s ease infinite;
-    min-height: 100vh;
-    color: var(--text);
-    padding: 20px;
-    overflow-x: hidden;
-    transition: background 0.5s ease, color 0.3s ease;
-  }
-  @keyframes gradientShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
-  .container { max-width: 1500px; margin: 0 auto; }
-  header { text-align: center; padding: 20px 0; animation: fadeInDown 0.8s ease; position: relative; }
-  @keyframes fadeInDown { from{opacity:0;transform:translateY(-30px)} to{opacity:1;transform:translateY(0)} }
-  h1 {
-    font-size: 2.3rem;
-    background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6);
-    background-size: 200% auto;
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shine 3s linear infinite;
-  }
-  @keyframes shine { to{background-position:200% center} }
-  .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
+  /* Brand gradient: magenta → royal purple → electric indigo */
+  --brand-1: #E040FB;
+  --brand-2: #7B5EA7;
+  --brand-3: #3D5AFE;
+  --gradient-brand: linear-gradient(90deg, #E040FB, #7B5EA7, #3D5AFE);
 
-  .header-controls {
-    position: absolute; top: 20px; right: 0;
-    display: flex; gap: 8px; align-items: center;
-  }
-  .lang-btn, .theme-btn {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    color: var(--text); padding: 6px 12px;
-    border-radius: 8px; cursor: pointer;
-    font-size: 0.82rem; font-weight: 600;
-    transition: all 0.3s ease;
-  }
-  .lang-btn:hover, .theme-btn:hover { background: var(--table-row-hover); transform: translateY(-1px); }
+  /* Accent gradient: cobalt → violet */
+  --gradient-accent: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  --gradient-accent-text: linear-gradient(90deg, #60a5fa, #a78bfa);
 
-  .tabs { display: flex; gap: 8px; margin: 20px 0; justify-content: center; flex-wrap: wrap; }
-  .tab {
-    background: var(--card-bg); border: 1px solid var(--card-border);
-    color: var(--text-muted); padding: 10px 20px; border-radius: 10px;
-    cursor: pointer; transition: all 0.3s ease; font-weight: 500; font-size: 0.9rem;
-  }
-  .tab:hover { background: var(--table-row-hover); transform: translateY(-2px); }
-  .tab.active {
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    border-color: transparent; color: white;
-    box-shadow: 0 6px 20px rgba(139,92,246,0.4);
-  }
+  /* Slate surfaces (dark default) */
+  --bg-start: #0f172a;
+  --bg-mid:   #1e293b;
+  --bg-end:   #334155;
 
-  .view { animation: fadeIn 0.4s ease; }
-  .view.hidden { display: none; }
-  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  --fg-1: #e2e8f0;
+  --fg-2: #94a3b8;
+  --fg-3: #64748b;
 
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .stat-card {
-    background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid var(--card-border);
-    border-radius: 12px; padding: 16px; text-align: center; transition: all 0.3s ease; animation: fadeInUp 0.6s ease backwards;
-  }
-  .stat-card:hover { transform: translateY(-5px); border-color: rgba(96,165,250,0.5); box-shadow: 0 10px 30px rgba(96,165,250,0.2); }
-  .stat-card:nth-child(n) { animation-delay: calc(var(--i,0) * 0.08s); }
-  @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-  .stat-value { font-size: 1.9rem; font-weight: bold; background: linear-gradient(90deg, #60a5fa, #a78bfa); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-  .stat-label { color: var(--text-muted); font-size: 0.8rem; margin-top: 4px; }
+  --card-bg:     rgba(255,255,255,0.05);
+  --card-border: rgba(255,255,255,0.10);
+  --input-bg:     rgba(255,255,255,0.05);
+  --input-border: rgba(255,255,255,0.15);
+  --row-hover:    rgba(96,165,250,0.08);
+  --kanban-col:   rgba(255,255,255,0.03);
+  --kanban-card:  rgba(30,41,59,0.80);
+  --table-head:   rgba(30,41,59,0.80);
+  --modal-bg:     linear-gradient(135deg, #1e293b, #0f172a);
+  --modal-border: rgba(96,165,250,0.30);
+  --autocomplete-bg: #1e293b;
+  --reminder-bg:     rgba(251,191,36,0.08);
+  --reminder-border: rgba(251,191,36,0.30);
+  --btn-secondary-bg: rgba(255,255,255,0.10);
 
-  .reminders { background: var(--reminder-bg); border: 1px solid var(--reminder-border); border-radius: 12px; padding: 14px 18px; margin-bottom: 15px; animation: fadeIn 0.6s ease; }
-  .reminders h3 { color: #fbbf24; font-size: 0.95rem; margin-bottom: 8px; }
-  .reminder-item { font-size: 0.85rem; color: #fde68a; padding: 4px 0; }
-  .reminder-item strong { color: #fbbf24; }
+  /* Status colors */
+  --status-applied:   #60a5fa;  --status-applied-bg:   rgba(59,130,246,0.20);
+  --status-screening: #fbbf24;  --status-screening-bg: rgba(245,158,11,0.20);
+  --status-interview: #c084fc;  --status-interview-bg: rgba(168,85,247,0.20);
+  --status-offer:     #34d399;  --status-offer-bg:     rgba(16,185,129,0.20);
+  --status-rejected:  #f87171;  --status-rejected-bg:  rgba(239,68,68,0.20);
 
-  .controls { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; align-items: center; }
-  .filters-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
-  .btn {
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border: none;
-    padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer;
-    transition: all 0.3s ease; font-size: 0.88rem; position: relative; overflow: hidden;
-  }
-  .btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left 0.5s; }
-  .btn:hover::before { left: 100%; }
-  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(139,92,246,0.4); }
-  .btn-export { background: linear-gradient(135deg, #10b981, #059669); }
-  .btn-import { background: linear-gradient(135deg, #06b6d4, #0891b2); }
-  .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
-  .btn-secondary { background: var(--btn-secondary-bg); color: var(--text); border: 1px solid var(--card-border); }
+  /* Feedback */
+  --success: #10b981; --success-2: #059669;
+  --danger:  #ef4444; --danger-2:  #dc2626;
+  --warn:    #f59e0b;
+  --star:    #f59e0b;
 
-  input, select, textarea {
-    background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text);
-    padding: 10px 13px; border-radius: 8px; font-size: 0.88rem; transition: all 0.3s ease; font-family: inherit;
-  }
-  input:focus, select:focus, textarea:focus { outline: none; border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.15); }
-  select option { background: var(--autocomplete-bg); color: var(--text); }
-  .search-input { flex: 1; min-width: 200px; }
+  /* Radii */
+  --radius-sm:   6px;
+  --radius:      8px;
+  --radius-lg:  12px;
+  --radius-xl:  14px;
+  --radius-2xl: 16px;
+  --radius-pill: 20px;
 
-  .table-wrapper { background: var(--card-bg); border-radius: 14px; overflow-x: auto; border: 1px solid var(--card-border); }
-  table { width: 100%; border-collapse: collapse; min-width: 1100px; }
-  th { background: var(--table-head-bg); padding: 13px 11px; text-align: left; font-weight: 600; color: var(--text); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid rgba(96,165,250,0.3); cursor: pointer; user-select: none; }
-  th:hover { background: var(--table-row-hover); }
-  th .sort-icon { margin-left: 4px; opacity: 0.5; }
-  th.sorted .sort-icon { opacity: 1; }
-  td { padding: 11px; border-bottom: 1px solid var(--card-border); font-size: 0.88rem; color: var(--text); }
-  tbody tr { transition: all 0.3s ease; animation: slideIn 0.4s ease backwards; }
-  @keyframes slideIn { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
-  tbody tr:hover { background: var(--table-row-hover); }
+  /* Shadows (colored elevation) */
+  --shadow-btn:   0 8px 20px rgba(139,92,246,0.40);
+  --shadow-card:  0 8px 20px rgba(96,165,250,0.20);
+  --shadow-stat:  0 10px 30px rgba(96,165,250,0.20);
+  --shadow-toast: 0 10px 30px rgba(16,185,129,0.40);
+  --shadow-offer: 0 0 15px rgba(52,211,153,0.60);
 
-  .status-badge { padding: 4px 11px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
-  .status-aplicado,.status-applied { background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid #60a5fa; }
-  .status-screening { background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #fbbf24; }
-  .status-entrevista,.status-interview { background: rgba(168,85,247,0.2); color: #c084fc; border: 1px solid #c084fc; }
-  .status-oferta,.status-offer { background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #34d399; animation: glow 2s ease-in-out infinite; }
-  @keyframes glow { 0%,100%{box-shadow:0 0 5px rgba(52,211,153,0.3)} 50%{box-shadow:0 0 15px rgba(52,211,153,0.6)} }
-  .status-rechazado,.status-rejected { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid #f87171; }
+  /* Motion */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --sidebar-w:   220px;
+}
 
-  .action-btn { background: transparent; border: 1px solid var(--card-border); color: var(--text); padding: 4px 9px; border-radius: 6px; cursor: pointer; margin: 0 2px; font-size: 0.78rem; transition: all 0.2s ease; }
-  .action-btn:hover { transform: scale(1.1); }
-  .action-btn.edit:hover { background: #3b82f6; border-color: #3b82f6; color: white; }
-  .action-btn.delete:hover { background: #ef4444; border-color: #ef4444; color: white; }
-  a.link { color: #60a5fa; text-decoration: none; }
-  a.link:hover { color: #a78bfa; text-decoration: underline; }
+.light-mode {
+  --bg-start: #f1f5f9;
+  --bg-mid:   #e2e8f0;
+  --bg-end:   #cbd5e1;
+  --fg-1: #0f172a;
+  --fg-2: #475569;
+  --fg-3: #64748b;
+  --card-bg:     rgba(255,255,255,0.80);
+  --card-border: rgba(0,0,0,0.10);
+  --input-bg:     rgba(255,255,255,0.90);
+  --input-border: rgba(0,0,0,0.20);
+  --row-hover:    rgba(96,165,250,0.12);
+  --kanban-col:   rgba(255,255,255,0.60);
+  --kanban-card:  rgba(255,255,255,0.90);
+  --table-head:   rgba(226,232,240,0.90);
+  --modal-bg:     linear-gradient(135deg, #f8fafc, #f1f5f9);
+  --modal-border: rgba(59,130,246,0.30);
+  --autocomplete-bg: #ffffff;
+  --reminder-bg:     rgba(251,191,36,0.12);
+  --reminder-border: rgba(251,191,36,0.40);
+  --btn-secondary-bg: rgba(0,0,0,0.08);
+}
 
-  .kanban { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; min-height: 500px; }
-  .kanban-column { background: var(--kanban-col-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; min-height: 400px; transition: all 0.3s ease; }
-  .kanban-column.drag-over { background: rgba(96,165,250,0.1); border-color: #60a5fa; transform: scale(1.02); }
-  .kanban-header { font-weight: 700; font-size: 0.9rem; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; text-align: center; }
-  .kanban-header.aplicado,.kanban-header.applied { background: rgba(59,130,246,0.2); color: #60a5fa; }
-  .kanban-header.screening { background: rgba(245,158,11,0.2); color: #fbbf24; }
-  .kanban-header.entrevista,.kanban-header.interview { background: rgba(168,85,247,0.2); color: #c084fc; }
-  .kanban-header.oferta,.kanban-header.offer { background: rgba(16,185,129,0.2); color: #34d399; }
-  .kanban-header.rechazado,.kanban-header.rejected { background: rgba(239,68,68,0.2); color: #f87171; }
-  .kanban-card { background: var(--kanban-card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 12px; margin-bottom: 10px; cursor: grab; transition: all 0.25s ease; animation: fadeInUp 0.4s ease backwards; }
-  .kanban-card:hover { transform: translateY(-3px); border-color: #60a5fa; box-shadow: 0 8px 20px rgba(96,165,250,0.2); }
-  .kanban-card.dragging { opacity: 0.4; transform: rotate(3deg); }
-  .kanban-card-company { font-weight: 700; color: var(--text); margin-bottom: 3px; font-size: 0.9rem; }
-  .kanban-card-position { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; }
-  .kanban-card-meta { font-size: 0.75rem; color: var(--text-dim); display: flex; justify-content: space-between; }
+/* ─── ANIMATIONS ─────────────────────────────────────── */
+@keyframes gradientShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+@keyframes shine         { to { background-position: 200% center; } }
+@keyframes fadeIn        { from{opacity:0} to{opacity:1} }
+@keyframes fadeInDown    { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeInUp      { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes slideIn       { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+@keyframes modalPop      { from{opacity:0;transform:scale(0.82) translateY(24px)} to{opacity:1;transform:scale(1) translateY(0)} }
+@keyframes bounce        { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+@keyframes glow          { 0%,100%{box-shadow:0 0 5px rgba(52,211,153,0.3)} 50%{box-shadow:var(--shadow-offer)} }
 
-  .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .chart-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 20px; animation: fadeInUp 0.6s ease backwards; }
-  .chart-card h3 { margin-bottom: 15px; color: var(--text-muted); font-size: 1rem; }
-  .chart-card.wide { grid-column: 1 / -1; }
-  canvas { max-width: 100%; }
-  .funnel { display: flex; flex-direction: column; gap: 8px; }
-  .funnel-bar { padding: 14px 20px; border-radius: 10px; color: white; font-weight: 600; display: flex; justify-content: space-between; transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); animation: growBar 0.8s ease backwards; }
-  @keyframes growBar { from{width:0;opacity:0} to{opacity:1} }
+/* ─── BASE ───────────────────────────────────────────── */
+html { height: 100%; }
+body {
+  font-family: var(--font);
+  background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-mid) 50%, var(--bg-end) 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  color: var(--fg-1);
+  height: 100%;
+  display: flex;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: color 0.3s;
+}
 
-  .confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center; }
-  .confirm-overlay.active { display: flex; }
-  .confirm-box { background: var(--modal-bg); border: 1px solid var(--modal-border); border-radius: 14px; padding: 28px; width: 90%; max-width: 400px; animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center; }
-  .confirm-box h3 { color: var(--text); margin-bottom: 10px; font-size: 1.1rem; }
-  .confirm-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
-  .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+/* ─── SIDEBAR ────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--kanban-col);
+  backdrop-filter: blur(12px);
+  border-right: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 10;
+}
 
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; animation: fadeIn 0.3s ease; }
-  .modal-overlay.active { display: flex; }
-  .modal { background: var(--modal-bg); border: 1px solid var(--modal-border); border-radius: 16px; padding: 28px; width: 90%; max-width: 620px; max-height: 90vh; overflow-y: auto; animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
-  @keyframes modalPop { from{opacity:0;transform:scale(0.8) translateY(30px)} to{opacity:1;transform:scale(1) translateY(0)} }
-  .modal h2 { margin-bottom: 18px; background: linear-gradient(90deg, #60a5fa, #a78bfa); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .form-grid .full { grid-column: 1 / -1; }
-  .form-grid label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 0.83rem; }
-  .form-grid input, .form-grid select, .form-grid textarea { width: 100%; }
-  .form-grid textarea { resize: vertical; min-height: 70px; }
-  .modal-actions { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; }
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid var(--card-border);
+}
+.sidebar-logo svg { flex-shrink: 0; }
+.sidebar-logo-text { display: flex; flex-direction: column; }
+.sidebar-logo-name {
+  font-size: 15px;
+  font-weight: 700;
+  background: var(--gradient-brand);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 3s linear infinite;
+}
+.sidebar-logo-sub {
+  font-size: 11px;
+  color: var(--fg-3);
+  margin-top: 1px;
+}
 
-  .autocomplete-wrapper { position: relative; }
-  .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: var(--autocomplete-bg); border: 1px solid var(--modal-border); border-radius: 8px; margin-top: 4px; max-height: 180px; overflow-y: auto; z-index: 10; display: none; }
-  .autocomplete-list.show { display: block; }
-  .autocomplete-item { padding: 8px 12px; cursor: pointer; font-size: 0.88rem; color: var(--text); }
-  .autocomplete-item:hover, .autocomplete-item.selected { background: rgba(96,165,250,0.2); }
+.sidebar-nav {
+  padding: 12px 8px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 
-  .empty-state { text-align: center; padding: 50px 20px; color: var(--text-dim); }
-  .empty-state .icon { font-size: 3.5rem; margin-bottom: 12px; animation: bounce 2s ease-in-out infinite; }
-  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-15px)} }
+.nav-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-3);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 8px 8px 4px;
+}
 
-  .toast { position: fixed; bottom: 30px; right: 30px; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 14px 24px; border-radius: 10px; box-shadow: 0 10px 30px var(--toast-shadow); transform: translateX(500px); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 2000; }
-  .toast.show { transform: translateX(0); }
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--fg-2);
+  font-family: var(--font);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-align: left;
+  white-space: nowrap;
+}
+.tab .tab-icon { font-size: 15px; }
+.tab:hover { background: var(--row-hover); color: var(--fg-1); transform: translateY(-1px); }
+.tab.active {
+  background: var(--gradient-accent);
+  border-color: transparent;
+  color: white;
+  font-weight: 600;
+  box-shadow: var(--shadow-btn);
+}
 
-  @media (max-width: 900px) { .kanban { grid-template-columns: 1fr; } .dashboard { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr; } }
+.sidebar-footer {
+  padding: 12px 8px;
+  border-top: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--fg-2);
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-align: left;
+}
+.icon-btn:hover { background: var(--row-hover); color: var(--fg-1); transform: translateY(-1px); }
+
+/* ─── MAIN ───────────────────────────────────────────── */
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--card-border);
+  background: var(--kanban-col);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.search-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 380px;
+}
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--fg-3);
+  font-size: 14px;
+  pointer-events: none;
+}
+.search-input {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--fg-1);
+  padding: 9px 12px 9px 32px;
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  font-family: var(--font);
+  transition: all 0.3s ease;
+}
+.search-input:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+}
+.search-input::placeholder { color: var(--fg-3); }
+
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+
+/* ─── BUTTONS ────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: var(--radius-lg);
+  border: none;
+  font-family: var(--font);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+.btn:hover::before { left: 100%; }
+.btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-btn); }
+
+.btn-primary {
+  background: var(--gradient-accent);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(139,92,246,0.35);
+}
+.btn-secondary {
+  background: var(--btn-secondary-bg);
+  color: var(--fg-1);
+  border: 1px solid var(--card-border);
+}
+.btn-ghost {
+  background: var(--card-bg);
+  color: var(--fg-2);
+  border: 1px solid var(--card-border);
+}
+.btn-ghost:hover { color: var(--fg-1); }
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+.btn-sm { padding: 6px 12px; font-size: 0.82rem; }
+
+/* ─── CONTENT ────────────────────────────────────────── */
+.content { flex: 1; padding: 20px 24px; overflow-y: auto; }
+
+/* ─── REMINDERS ──────────────────────────────────────── */
+.reminders {
+  background: var(--reminder-bg);
+  border: 1px solid var(--reminder-border);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  animation: fadeIn 0.6s ease;
+}
+.reminders h3 { color: #fbbf24; font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; }
+.reminder-item { font-size: 0.85rem; color: #fde68a; padding: 4px 0; }
+.reminder-item strong { color: #fbbf24; }
+
+/* ─── STATS STRIP ────────────────────────────────────── */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease backwards;
+}
+.stat-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(96,165,250,0.5);
+  box-shadow: var(--shadow-stat);
+}
+.stat-value {
+  font-size: 1.9rem;
+  font-weight: 700;
+  background: var(--gradient-accent-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+.stat-label { font-size: 0.8rem; color: var(--fg-2); margin-top: 4px; font-weight: 500; }
+
+/* ─── FILTERS ────────────────────────────────────────── */
+.filters-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+select, input[type="text"], input[type="date"], input[type="url"], textarea {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--fg-1);
+  padding: 10px 13px;
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  font-family: var(--font);
+  transition: all 0.3s ease;
+}
+select:focus, input:focus, textarea:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+}
+select option { background: var(--autocomplete-bg); color: var(--fg-1); }
+textarea { resize: vertical; min-height: 70px; }
+
+/* ─── TABLE ──────────────────────────────────────────── */
+.table-wrapper {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-xl);
+  overflow-x: auto;
+}
+table { width: 100%; border-collapse: collapse; min-width: 1100px; }
+th {
+  background: var(--table-head);
+  padding: 13px 11px;
+  text-align: left;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--fg-1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid rgba(96,165,250,0.30);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+th:hover { background: var(--row-hover); }
+th .sort-icon { margin-left: 4px; opacity: 0.5; }
+th.sorted { color: #60a5fa; }
+th.sorted .sort-icon { opacity: 1; }
+td {
+  padding: 11px;
+  border-bottom: 1px solid var(--card-border);
+  font-size: 0.88rem;
+  color: var(--fg-1);
+  vertical-align: middle;
+}
+tbody tr { transition: all 0.3s ease; animation: slideIn 0.4s ease backwards; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--row-hover); }
+
+/* ─── STATUS BADGES ──────────────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border-width: 1px;
+  border-style: solid;
+}
+.status-badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-aplicado, .status-applied {
+  background: var(--status-applied-bg);
+  color: var(--status-applied);
+  border-color: var(--status-applied);
+}
+.status-aplicado::before, .status-applied::before { background: var(--status-applied); }
+.status-screening {
+  background: var(--status-screening-bg);
+  color: var(--status-screening);
+  border-color: var(--status-screening);
+}
+.status-screening::before { background: var(--status-screening); }
+.status-entrevista, .status-interview {
+  background: var(--status-interview-bg);
+  color: var(--status-interview);
+  border-color: var(--status-interview);
+}
+.status-entrevista::before, .status-interview::before { background: var(--status-interview); }
+.status-oferta, .status-offer {
+  background: var(--status-offer-bg);
+  color: var(--status-offer);
+  border-color: var(--status-offer);
+  animation: glow 2s ease-in-out infinite;
+}
+.status-oferta::before, .status-offer::before { background: var(--status-offer); }
+.status-rechazado, .status-rejected {
+  background: var(--status-rejected-bg);
+  color: var(--status-rejected);
+  border-color: var(--status-rejected);
+}
+.status-rechazado::before, .status-rejected::before { background: var(--status-rejected); }
+
+/* ─── ACTION BUTTONS ─────────────────────────────────── */
+.action-btn {
+  background: transparent;
+  border: 1px solid var(--card-border);
+  color: var(--fg-2);
+  padding: 4px 9px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin: 0 2px;
+  font-size: 0.78rem;
+  font-family: var(--font);
+  transition: all 0.2s ease;
+}
+.action-btn:hover { transform: scale(1.1); }
+.action-btn.edit:hover { background: #3b82f6; border-color: #3b82f6; color: white; }
+.action-btn.delete:hover { background: #ef4444; border-color: #ef4444; color: white; }
+.li-btn {
+  display: inline-block;
+  background: #0a66c2;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  text-decoration: none;
+  margin-left: 6px;
+  vertical-align: middle;
+  transition: opacity 0.15s;
+  font-family: var(--font);
+}
+.li-btn:hover { opacity: 0.8; }
+a.link { color: #60a5fa; text-decoration: none; }
+a.link:hover { color: #a78bfa; text-decoration: underline; }
+
+/* ─── TAGS ───────────────────────────────────────────── */
+.tag-pill {
+  display: inline-block;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--fg-2);
+  border-radius: var(--radius-pill);
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  margin: 0 2px;
+}
+.tags-input-wrap {
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius);
+  padding: 5px 8px;
+  background: var(--input-bg);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 38px;
+  cursor: text;
+  transition: all 0.3s ease;
+}
+.tags-input-wrap:focus-within {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+}
+.tags-display { display: contents; }
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--fg-2);
+  border-radius: var(--radius);
+  padding: 2px 7px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+.tag-chip button {
+  background: none;
+  border: none;
+  color: var(--fg-3);
+  cursor: pointer;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.tag-chip button:hover { color: var(--status-rejected); }
+#tagsInput {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--fg-1);
+  font-size: 0.88rem;
+  font-family: var(--font);
+  flex: 1;
+  min-width: 120px;
+  padding: 1px 0;
+}
+
+/* ─── KANBAN ─────────────────────────────────────────── */
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  min-height: 500px;
+  align-items: start;
+}
+.kanban-column {
+  background: var(--kanban-col);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  min-height: 400px;
+  transition: all 0.3s ease;
+}
+.kanban-column.drag-over {
+  background: rgba(96,165,250,0.10);
+  border-color: #60a5fa;
+  transform: scale(1.02);
+}
+.kanban-header {
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.kanban-header .kh-count {
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 1px 6px;
+}
+.kanban-header.aplicado, .kanban-header.applied { background: var(--status-applied-bg);   color: var(--status-applied); }
+.kanban-header.screening                        { background: var(--status-screening-bg); color: var(--status-screening); }
+.kanban-header.entrevista, .kanban-header.interview { background: var(--status-interview-bg); color: var(--status-interview); }
+.kanban-header.oferta, .kanban-header.offer     { background: var(--status-offer-bg);    color: var(--status-offer); }
+.kanban-header.rechazado, .kanban-header.rejected { background: var(--status-rejected-bg); color: var(--status-rejected); }
+
+.kanban-card {
+  background: var(--kanban-card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin-bottom: 10px;
+  cursor: grab;
+  transition: all 0.25s ease;
+  animation: fadeInUp 0.4s ease backwards;
+}
+.kanban-card:last-child { margin-bottom: 0; }
+.kanban-card:hover {
+  transform: translateY(-3px);
+  border-color: #60a5fa;
+  box-shadow: var(--shadow-card);
+}
+.kanban-card.dragging { opacity: 0.4; transform: rotate(3deg); }
+.kanban-card-company { font-weight: 700; color: var(--fg-1); font-size: 0.9rem; margin-bottom: 3px; }
+.kanban-card-position { font-size: 0.82rem; color: var(--fg-2); margin-bottom: 6px; }
+.kanban-card-meta {
+  font-size: 0.75rem;
+  color: var(--fg-3);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ─── DASHBOARD ──────────────────────────────────────── */
+.dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.chart-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  animation: fadeInUp 0.6s ease backwards;
+}
+.chart-card h3 {
+  margin-bottom: 16px;
+  color: var(--fg-2);
+  font-size: 1rem;
+  font-weight: 600;
+}
+.chart-card.wide { grid-column: 1 / -1; }
+canvas { max-width: 100%; }
+
+.funnel { display: flex; flex-direction: column; gap: 8px; }
+.funnel-bar {
+  padding: 14px 20px;
+  border-radius: var(--radius);
+  color: white;
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.5s var(--ease-spring);
+  animation: fadeIn 0.8s ease backwards;
+}
+.funnel-bar:hover { transform: translateX(6px); }
+.funnel-count { font-size: 18px; font-weight: 700; }
+
+/* ─── CALENDAR ───────────────────────────────────────── */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-day-name {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--fg-3);
+  padding: 6px 0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.cal-day {
+  min-height: 80px;
+  border-radius: var(--radius);
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  backdrop-filter: blur(4px);
+  padding: 6px;
+  font-size: 0.82rem;
+  transition: border-color 0.2s;
+}
+.cal-day:hover { border-color: rgba(96,165,250,0.5); }
+.cal-day.today { border-color: #60a5fa; }
+.cal-day.empty { background: transparent; border-color: transparent; backdrop-filter: none; }
+.cal-day-num { font-size: 0.78rem; color: var(--fg-3); margin-bottom: 3px; font-weight: 500; }
+.cal-day.today .cal-day-num { color: #60a5fa; font-weight: 700; }
+.cal-event {
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-size: 0.65rem;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  color: #fff;
+  font-weight: 500;
+}
+.cal-event.interview { background: var(--warn); }
+.cal-event.next      { background: var(--success); }
+.cal-event.applied   { background: #3b82f6; }
+.cal-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 0.78rem;
+  color: var(--fg-3);
+}
+.cal-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+/* ─── MODALS ─────────────────────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+.modal-overlay.active { display: flex; }
+
+.modal {
+  background: var(--modal-bg);
+  border: 1px solid var(--modal-border);
+  border-radius: var(--radius-2xl);
+  padding: 28px;
+  width: 90%;
+  max-width: 620px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalPop 0.4s var(--ease-spring);
+}
+
+.modal h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: var(--gradient-accent-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+}
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid .full { grid-column: 1 / -1; }
+.form-grid label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--fg-2);
+  font-size: 0.83rem;
+  font-weight: 600;
+}
+.form-grid input, .form-grid select, .form-grid textarea { width: 100%; }
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+
+/* Confirm modal */
+.confirm-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(5px);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+}
+.confirm-overlay.active { display: flex; }
+.confirm-box {
+  background: var(--modal-bg);
+  border: 1px solid var(--modal-border);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  width: 90%;
+  max-width: 400px;
+  animation: modalPop 0.35s var(--ease-spring);
+  text-align: center;
+}
+.confirm-box h3 { color: var(--fg-1); margin-bottom: 10px; font-size: 1.1rem; font-weight: 700; }
+.confirm-box p { color: var(--fg-2); font-size: 0.9rem; margin-bottom: 20px; }
+.confirm-actions { display: flex; gap: 10px; justify-content: center; }
+
+/* ─── AUTOCOMPLETE ───────────────────────────────────── */
+.autocomplete-wrapper { position: relative; }
+.autocomplete-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--autocomplete-bg);
+  border: 1px solid var(--modal-border);
+  border-radius: var(--radius);
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 100;
+  display: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.autocomplete-list.show { display: block; }
+.autocomplete-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  color: var(--fg-1);
+  transition: background 0.1s;
+}
+.autocomplete-item:hover, .autocomplete-item.selected { background: var(--row-hover); }
+
+/* ─── STARS ──────────────────────────────────────────── */
+.star-rating { display: flex; gap: 4px; margin-top: 4px; }
+.star {
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--fg-3);
+  transition: color 0.15s, transform 0.1s;
+}
+.star.active { color: var(--star); }
+.star:hover { transform: scale(1.2); }
+
+/* ─── EMPTY STATE ────────────────────────────────────── */
+.empty-state { text-align: center; padding: 50px 20px; color: var(--fg-3); }
+.empty-state .icon { font-size: 3.5rem; margin-bottom: 12px; animation: bounce 2s ease-in-out infinite; }
+.empty-state p { font-size: 0.9rem; color: var(--fg-3); }
+
+/* ─── TOAST ──────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 14px 24px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-toast);
+  transform: translateX(500px);
+  transition: transform 0.4s var(--ease-spring);
+  z-index: 3000;
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.toast.show { transform: translateX(0); }
+
+/* ─── VIEW TRANSITIONS ───────────────────────────────── */
+.view { animation: fadeIn 0.4s ease; }
+.view.hidden { display: none; }
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 960px) {
+  .sidebar { display: none; }
+  .kanban { grid-template-columns: 1fr; }
+  .dashboard { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .stats { gap: 8px; }
+  .content { padding: 14px; }
+  .topbar { padding: 10px 14px; }
+}
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <h1>🚀 Job Application Tracker</h1>
-    <p class="subtitle" data-i18n="subtitle">Controla cada aplicación, entrevista y oferta</p>
-    <div class="header-controls">
-      <button class="lang-btn" id="langBtn" onclick="toggleLang()">🌐 EN</button>
-      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☀️</button>
+
+<!-- ─── SIDEBAR ───────────────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <svg width="28" height="28" viewBox="0 0 90 68" aria-label="Aplico logo">
+      <defs>
+        <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#E040FB"/>
+          <stop offset="50%" stop-color="#7B5EA7"/>
+          <stop offset="100%" stop-color="#3D5AFE"/>
+        </linearGradient>
+      </defs>
+      <polyline points="54,8 63,18 80,2" fill="none" stroke="url(#lg)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="0"  y="40" width="22" height="28" rx="4" fill="url(#lg)" opacity="0.4"/>
+      <rect x="28" y="28" width="22" height="40" rx="4" fill="url(#lg)" opacity="0.7"/>
+      <rect x="56" y="14" width="22" height="54" rx="4" fill="url(#lg)"/>
+    </svg>
+    <div class="sidebar-logo-text">
+      <span class="sidebar-logo-name">Aplico</span>
+      <span class="sidebar-logo-sub" data-i18n="subtitle">Job Tracker</span>
     </div>
-  </header>
-  <div class="tabs">
-    <button class="tab active" data-view="table" data-i18n="tabTable">📋 Tabla</button>
-    <button class="tab" data-view="kanban" data-i18n="tabKanban">🗂 Kanban</button>
-    <button class="tab" data-view="dashboard" data-i18n="tabDashboard">📊 Dashboard</button>
   </div>
-  <div id="reminders"></div>
-  <div class="controls">
-    <input type="text" class="search-input" id="search" data-i18n-placeholder="searchPlaceholder" placeholder="🔍 Buscar empresa, puesto...">
-    <button class="btn" onclick="openModal()" data-i18n="btnNew">+ Nueva</button>
-    <button class="btn btn-export" onclick="exportCSV()" data-i18n="btnCsv">⬇ CSV</button>
-    <button class="btn btn-export" onclick="exportJSON()" data-i18n="btnBackup">💾 Backup</button>
-    <button class="btn btn-import" onclick="importJSON()" data-i18n="btnRestore">📥 Restaurar</button>
-    <button class="btn btn-danger" onclick="confirmClearAll()" data-i18n="btnClear">🗑 Limpiar</button>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Vistas</div>
+    <button class="tab active" data-view="table">
+      <span class="tab-icon">⊞</span>
+      <span data-i18n="tabTable">Tabla</span>
+    </button>
+    <button class="tab" data-view="kanban">
+      <span class="tab-icon">⊟</span>
+      <span data-i18n="tabKanban">Kanban</span>
+    </button>
+    <button class="tab" data-view="dashboard">
+      <span class="tab-icon">◎</span>
+      <span data-i18n="tabDashboard">Dashboard</span>
+    </button>
+    <button class="tab" data-view="calendar">
+      <span class="tab-icon">▦</span>
+      <span data-i18n="tabCalendar">Calendario</span>
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="icon-btn" onclick="openModal()">
+      <span>＋</span> <span data-i18n="btnNew">Nueva</span>
+    </button>
+    <button class="icon-btn" onclick="exportCSV()">
+      <span>↓</span> <span data-i18n="btnCsv">CSV</span>
+    </button>
+    <button class="icon-btn" onclick="exportJSON()">
+      <span>💾</span> <span data-i18n="btnBackup">Backup</span>
+    </button>
+    <button class="icon-btn" onclick="importJSON()">
+      <span>↑</span> <span data-i18n="btnRestore">Restaurar</span>
+    </button>
+    <button class="icon-btn" onclick="confirmClearAll()" style="color: var(--red);">
+      <span>✕</span> <span data-i18n="btnClear">Limpiar</span>
+    </button>
   </div>
-  <div class="filters-row">
-    <select id="filterStatus" onchange="renderTable()">
-      <option value="" data-i18n="filterAll">Todos los estados</option>
-      <option value="Aplicado" data-i18n="sApplied">Aplicado</option>
-      <option value="Screening">Screening</option>
-      <option value="Entrevista" data-i18n="sInterview">Entrevista</option>
-      <option value="Oferta" data-i18n="sOffer">Oferta</option>
-      <option value="Rechazado" data-i18n="sRejected">Rechazado</option>
-    </select>
-    <select id="filterLocation" onchange="renderTable()">
-      <option value="" data-i18n="filterAllLocations">Todas las ubicaciones</option>
-    </select>
+</aside>
+
+<!-- ─── MAIN ──────────────────────────────────────────── -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" class="search-input" id="search"
+          data-i18n-placeholder="searchPlaceholder"
+          placeholder="Buscar empresa, puesto...">
+      </div>
+      <select id="filterStatus" onchange="renderTable()">
+        <option value="" data-i18n="filterAll">Todos los estados</option>
+        <option value="Aplicado" data-i18n="sApplied">Aplicado</option>
+        <option value="Screening">Screening</option>
+        <option value="Entrevista" data-i18n="sInterview">Entrevista</option>
+        <option value="Oferta" data-i18n="sOffer">Oferta</option>
+        <option value="Rechazado" data-i18n="sRejected">Rechazado</option>
+      </select>
+      <select id="filterLocation" onchange="renderTable()">
+        <option value="" data-i18n="filterAllLocations">Todas las ubicaciones</option>
+      </select>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost" id="langBtn" onclick="toggleLang()">🌐 EN</button>
+      <button class="btn btn-ghost" id="themeBtn" onclick="toggleTheme()">☀️</button>
+      <button class="btn btn-primary" onclick="openModal()">
+        + <span data-i18n="btnNew">Nueva</span>
+      </button>
+    </div>
   </div>
-  <div id="view-table" class="view">
-    <div class="stats" id="stats"></div>
-    <div class="table-wrapper">
-      <table>
-        <thead><tr>
-          <th onclick="sortTable('company')" data-sort="company"><span data-i18n="colCompany">Empresa</span><span class="sort-icon">↕</span></th>
-          <th onclick="sortTable('position')" data-sort="position"><span data-i18n="colPosition">Puesto</span><span class="sort-icon">↕</span></th>
-          <th onclick="sortTable('status')" data-sort="status"><span data-i18n="colStatus">Estado</span><span class="sort-icon">↕</span></th>
-          <th onclick="sortTable('date')" data-sort="date"><span data-i18n="colDate">Fecha</span><span class="sort-icon">↕</span></th>
-          <th data-i18n="colSalary">Salario</th><th data-i18n="colLocation">Ubicación</th>
-          <th data-i18n="colContact">Contacto</th><th data-i18n="colNext">Próximo paso</th>
-          <th>Link</th><th data-i18n="colActions">Acciones</th>
-        </tr></thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-      <div id="emptyState" class="empty-state" style="display:none;">
-        <div class="icon">📋</div><p data-i18n="emptyMsg">Aún no hay aplicaciones. ¡Agrega la primera!</p>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div id="reminders"></div>
+
+    <!-- TABLE VIEW -->
+    <div id="view-table" class="view">
+      <div class="stats" id="stats"></div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th onclick="sortTable('company')" data-sort="company"><span data-i18n="colCompany">Empresa</span><span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('position')" data-sort="position"><span data-i18n="colPosition">Puesto</span><span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('status')" data-sort="status"><span data-i18n="colStatus">Estado</span><span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('date')" data-sort="date"><span data-i18n="colDate">Fecha</span><span class="sort-icon">↕</span></th>
+              <th data-i18n="colSalary">Salario</th>
+              <th data-i18n="colLocation">Ubicación</th>
+              <th data-i18n="colContact">Contacto</th>
+              <th data-i18n="colNext">Próximo paso</th>
+              <th>Link</th>
+              <th data-i18n="colRating">★</th>
+              <th data-i18n="colTags">Tags</th>
+              <th data-i18n="colActions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+        <div id="emptyState" class="empty-state" style="display:none;">
+          <div class="icon">📋</div>
+          <p data-i18n="emptyMsg">Aún no hay aplicaciones. ¡Agrega la primera!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- KANBAN VIEW -->
+    <div id="view-kanban" class="view hidden">
+      <div class="kanban" id="kanban"></div>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="view-dashboard" class="view hidden">
+      <div class="dashboard">
+        <div class="chart-card wide">
+          <h3 data-i18n="chartFunnel">Embudo de conversión</h3>
+          <div class="funnel" id="funnel"></div>
+        </div>
+        <div class="chart-card">
+          <h3 data-i18n="chartTimeline">Aplicaciones por mes</h3>
+          <canvas id="chartTimeline" height="200"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 data-i18n="chartCompanies">Top empresas</h3>
+          <canvas id="chartCompanies" height="200"></canvas>
+        </div>
+        <div class="chart-card wide">
+          <h3 data-i18n="chartKPIs">Métricas clave</h3>
+          <div class="stats" id="kpis"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDAR VIEW -->
+    <div id="view-calendar" class="view hidden">
+      <div class="calendar-header">
+        <button class="btn btn-ghost" onclick="calPrev()">‹</button>
+        <h3 id="calTitle" style="margin:0; font-size:15px; font-weight:600;"></h3>
+        <button class="btn btn-ghost" onclick="calNext()">›</button>
+      </div>
+      <div class="calendar-grid" id="calGrid"></div>
+      <div class="cal-legend">
+        <span class="cal-dot" style="background:var(--yellow)"></span><span data-i18n="sInterview">Entrevista</span>
+        <span class="cal-dot" style="background:var(--green); margin-left:12px"></span><span data-i18n="sOffer">Próximo paso</span>
+        <span class="cal-dot" style="background:var(--blue); margin-left:12px"></span><span data-i18n="sApplied">Aplicación</span>
       </div>
     </div>
   </div>
-  <div id="view-kanban" class="view hidden"><div class="kanban" id="kanban"></div></div>
-  <div id="view-dashboard" class="view hidden">
-    <div class="dashboard">
-      <div class="chart-card wide"><h3 data-i18n="chartFunnel">🎯 Embudo de conversión</h3><div class="funnel" id="funnel"></div></div>
-      <div class="chart-card"><h3 data-i18n="chartTimeline">📅 Aplicaciones por mes</h3><canvas id="chartTimeline" height="200"></canvas></div>
-      <div class="chart-card"><h3 data-i18n="chartCompanies">🏢 Top empresas</h3><canvas id="chartCompanies" height="200"></canvas></div>
-      <div class="chart-card wide"><h3 data-i18n="chartKPIs">📈 Métricas clave</h3><div class="stats" id="kpis"></div></div>
-    </div>
-  </div>
 </div>
+
+<!-- ─── FORM MODAL ─────────────────────────────────────── -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <h2 id="modalTitle">Nueva aplicación</h2>
     <form id="jobForm">
       <input type="hidden" id="jobId">
       <div class="form-grid">
-        <div class="autocomplete-wrapper"><label data-i18n="fCompany">Empresa *</label><input type="text" id="company" required autocomplete="off"><div class="autocomplete-list" id="companyList"></div></div>
-        <div class="autocomplete-wrapper"><label data-i18n="fPosition">Puesto *</label><input type="text" id="position" required autocomplete="off"><div class="autocomplete-list" id="positionList"></div></div>
-        <div><label data-i18n="fStatus">Estado</label><select id="status"><option value="Aplicado" data-i18n="sApplied">Aplicado</option><option value="Screening">Screening</option><option value="Entrevista" data-i18n="sInterview">Entrevista</option><option value="Oferta" data-i18n="sOffer">Oferta</option><option value="Rechazado" data-i18n="sRejected">Rechazado</option></select></div>
-        <div><label data-i18n="fDate">Fecha aplicación</label><input type="date" id="date"></div>
-        <div><label data-i18n="fSalary">Salario</label><input type="text" id="salary" placeholder="$50k - $70k"></div>
-        <div><label data-i18n="fLocation">Ubicación</label><input type="text" id="location" data-i18n-placeholder="fLocationPh" placeholder="Remoto / CDMX"></div>
-        <div><label data-i18n="fContact">Contacto</label><input type="text" id="contact"></div>
-        <div><label data-i18n="fNextStep">Próximo paso</label><input type="text" id="nextStep"></div>
-        <div><label data-i18n="fNextDate">Fecha próximo paso</label><input type="date" id="nextStepDate"></div>
-        <div><label data-i18n="fLastUpdate">Última actualización</label><input type="date" id="lastUpdate"></div>
-        <div class="full"><label data-i18n="fLink">Link de la vacante</label><input type="url" id="link" placeholder="https://..."></div>
-        <div class="full"><label data-i18n="fNotes">Notas</label><textarea id="notes"></textarea></div>
+        <div class="autocomplete-wrapper">
+          <label data-i18n="fCompany">Empresa *</label>
+          <input type="text" id="company" required autocomplete="off">
+          <div class="autocomplete-list" id="companyList"></div>
+        </div>
+        <div class="autocomplete-wrapper">
+          <label data-i18n="fPosition">Puesto *</label>
+          <input type="text" id="position" required autocomplete="off">
+          <div class="autocomplete-list" id="positionList"></div>
+        </div>
+        <div>
+          <label data-i18n="fStatus">Estado</label>
+          <select id="status">
+            <option value="Aplicado" data-i18n="sApplied">Aplicado</option>
+            <option value="Screening">Screening</option>
+            <option value="Entrevista" data-i18n="sInterview">Entrevista</option>
+            <option value="Oferta" data-i18n="sOffer">Oferta</option>
+            <option value="Rechazado" data-i18n="sRejected">Rechazado</option>
+          </select>
+        </div>
+        <div>
+          <label data-i18n="fDate">Fecha aplicación</label>
+          <input type="date" id="date">
+        </div>
+        <div>
+          <label data-i18n="fSalary">Salario</label>
+          <input type="text" id="salary" placeholder="$50k - $70k">
+        </div>
+        <div>
+          <label data-i18n="fLocation">Ubicación</label>
+          <input type="text" id="location" data-i18n-placeholder="fLocationPh" placeholder="Remoto / CDMX">
+        </div>
+        <div>
+          <label data-i18n="fContact">Contacto</label>
+          <input type="text" id="contact">
+        </div>
+        <div>
+          <label data-i18n="fNextStep">Próximo paso</label>
+          <input type="text" id="nextStep">
+        </div>
+        <div>
+          <label data-i18n="fNextDate">Fecha próximo paso</label>
+          <input type="date" id="nextStepDate">
+        </div>
+        <div>
+          <label data-i18n="fLastUpdate">Última actualización</label>
+          <input type="date" id="lastUpdate">
+        </div>
+        <div class="full">
+          <label data-i18n="fLink">Link de la vacante</label>
+          <input type="url" id="link" placeholder="https://...">
+        </div>
+        <div class="full">
+          <label data-i18n="fRating">Evaluación post-entrevista</label>
+          <div class="star-rating" id="starRating">
+            <span class="star" data-val="1">★</span>
+            <span class="star" data-val="2">★</span>
+            <span class="star" data-val="3">★</span>
+            <span class="star" data-val="4">★</span>
+            <span class="star" data-val="5">★</span>
+          </div>
+          <input type="hidden" id="rating" value="0">
+        </div>
+        <div class="full">
+          <label data-i18n="fTags">Tags</label>
+          <div class="tags-input-wrap">
+            <div class="tags-display" id="tagsDisplay"></div>
+            <input type="text" id="tagsInput" placeholder="urgente, remoto, referido... Enter para agregar">
+          </div>
+          <input type="hidden" id="tags" value="">
+        </div>
+        <div class="full">
+          <label data-i18n="fNotes">Notas</label>
+          <textarea id="notes"></textarea>
+        </div>
       </div>
       <div class="modal-actions">
         <button type="button" class="btn btn-secondary" onclick="closeModal()" data-i18n="btnCancel">Cancelar</button>
-        <button type="submit" class="btn" data-i18n="btnSave">Guardar</button>
+        <button type="submit" class="btn btn-primary" data-i18n="btnSave">Guardar</button>
       </div>
     </form>
   </div>
 </div>
+
+<!-- ─── CONFIRM MODAL ──────────────────────────────────── -->
 <div class="confirm-overlay" id="confirmModal">
   <div class="confirm-box">
-    <h3 id="confirmTitle">¿Estás seguro?</h3><p id="confirmMsg"></p>
+    <h3 id="confirmTitle">¿Estás seguro?</h3>
+    <p id="confirmMsg"></p>
     <div class="confirm-actions">
       <button class="btn btn-secondary" onclick="closeConfirm()" data-i18n="btnCancel">Cancelar</button>
       <button class="btn btn-danger" id="confirmOkBtn" data-i18n="btnConfirm">Confirmar</button>
     </div>
   </div>
 </div>
+
 <input type="file" id="fileInput" accept=".json" style="display:none;">
 <div class="toast" id="toast"></div>
+
 <script>
+  // ====== i18n ======
   const TRANSLATIONS = {
     es: {
-      subtitle:'Controla cada aplicación, entrevista y oferta',
-      tabTable:'📋 Tabla',tabKanban:'🗂 Kanban',tabDashboard:'📊 Dashboard',
-      searchPlaceholder:'🔍 Buscar empresa, puesto...',
-      btnNew:'+ Nueva',btnCsv:'⬇ CSV',btnBackup:'💾 Backup',btnRestore:'📥 Restaurar',btnClear:'🗑 Limpiar',
-      btnCancel:'Cancelar',btnSave:'Guardar',btnConfirm:'Confirmar',
-      filterAll:'Todos los estados',filterAllLocations:'Todas las ubicaciones',
-      sApplied:'Aplicado',sInterview:'Entrevista',sOffer:'Oferta',sRejected:'Rechazado',
-      colCompany:'Empresa',colPosition:'Puesto',colStatus:'Estado',colDate:'Fecha',
-      colSalary:'Salario',colLocation:'Ubicación',colContact:'Contacto',colNext:'Próximo paso',colActions:'Acciones',
-      emptyMsg:'Aún no hay aplicaciones. ¡Agrega la primera!',
-      chartFunnel:'🎯 Embudo de conversión',chartTimeline:'📅 Aplicaciones por mes',
-      chartCompanies:'🏢 Top empresas',chartKPIs:'📈 Métricas clave',
-      fCompany:'Empresa *',fPosition:'Puesto *',fStatus:'Estado',fDate:'Fecha aplicación',
-      fSalary:'Salario',fLocation:'Ubicación',fLocationPh:'Remoto / CDMX',
-      fContact:'Contacto',fNextStep:'Próximo paso',fNextDate:'Fecha próximo paso',
-      fLastUpdate:'Última actualización',fLink:'Link de la vacante',fNotes:'Notas',
-      modalNew:'Nueva aplicación',modalEdit:'Editar aplicación',
-      reminderTitle:'🔔 Recordatorios',
-      reminderUpcoming:(c,s,d)=>`📅 <strong>${c}</strong> - ${s} el ${d}`,
-      reminderStale:(c)=>`⏰ <strong>${c}</strong> aplicada hace +7 días, considera hacer follow-up`,
-      statTotal:'Total',statApplied:'Aplicado',statScreening:'Screening',
-      statInterview:'Entrevista',statOffer:'Oferta',statRejected:'Rechazado',
-      kpiInterview:'Tasa entrevista',kpiOffer:'Tasa oferta',kpiRejected:'Tasa rechazo',kpiActive:'Activas',
-      funnelApplied:'Aplicado',funnelScreening:'Screening',funnelInterview:'Entrevista',funnelOffer:'Oferta',
-      movedTo:(s)=>`Movido a ${s}`,
-      toastAdded:'Agregada ✓',toastUpdated:'Actualizada ✓',toastDeleted:'Eliminada ✓',toastAllClear:'Todo limpio ✓',
-      toastCsv:'CSV exportado ✓',toastBackup:'Backup descargado ✓',
-      toastImported:(n)=>`${n} importadas ✓`,toastNoData:'Nada que exportar',toastBadFile:'Archivo inválido',
-      confirmDelete:'¿Eliminar esta aplicación?',confirmDeleteMsg:'Esta acción no se puede deshacer.',
-      confirmClear:'¿Borrar TODAS las aplicaciones?',confirmClearMsg:'Se eliminarán todas tus aplicaciones. Esta acción no se puede deshacer.',
-      confirmImport:(n)=>`¿Importar ${n} aplicaciones? Se agregarán a las existentes.`,
-      noData:'Sin datos',langBtn:'🌐 EN',themeLight:'☀️',themeDark:'🌙',
+      subtitle: 'Controla cada aplicación, entrevista y oferta',
+      tabTable: 'Tabla', tabKanban: 'Kanban', tabDashboard: 'Dashboard', tabCalendar: 'Calendario',
+      searchPlaceholder: 'Buscar empresa, puesto...',
+      btnNew: 'Nueva', btnCsv: 'CSV', btnBackup: 'Backup',
+      btnRestore: 'Restaurar', btnClear: 'Limpiar',
+      btnCancel: 'Cancelar', btnSave: 'Guardar', btnConfirm: 'Confirmar',
+      filterAll: 'Todos los estados', filterAllLocations: 'Todas las ubicaciones',
+      sApplied: 'Aplicado', sInterview: 'Entrevista', sOffer: 'Oferta', sRejected: 'Rechazado',
+      colCompany: 'Empresa', colPosition: 'Puesto', colStatus: 'Estado', colDate: 'Fecha',
+      colSalary: 'Salario', colLocation: 'Ubicación', colContact: 'Contacto',
+      colNext: 'Próximo paso', colActions: 'Acciones', colRating: '★', colTags: 'Tags',
+      emptyMsg: 'Aún no hay aplicaciones. ¡Agrega la primera!',
+      chartFunnel: 'Embudo de conversión', chartTimeline: 'Aplicaciones por mes',
+      chartCompanies: 'Top empresas', chartKPIs: 'Métricas clave',
+      fCompany: 'Empresa *', fPosition: 'Puesto *', fStatus: 'Estado', fDate: 'Fecha aplicación',
+      fSalary: 'Salario', fLocation: 'Ubicación', fLocationPh: 'Remoto / CDMX',
+      fContact: 'Contacto', fNextStep: 'Próximo paso', fNextDate: 'Fecha próximo paso',
+      fLastUpdate: 'Última actualización', fLink: 'Link de la vacante',
+      fRating: 'Evaluación post-entrevista', fTags: 'Tags', fNotes: 'Notas',
+      modalNew: 'Nueva aplicación', modalEdit: 'Editar aplicación',
+      reminderTitle: 'Recordatorios',
+      reminderUpcoming: (c,s,d) => `📅 <strong>${c}</strong> — ${s} el ${d}`,
+      reminderStale: (c) => `⏰ <strong>${c}</strong> aplicada hace +7 días, considera hacer follow-up`,
+      statTotal: 'Total', statApplied: 'Aplicado', statScreening: 'Screening',
+      statInterview: 'Entrevista', statOffer: 'Oferta', statRejected: 'Rechazado',
+      kpiInterview: 'Tasa entrevista', kpiOffer: 'Tasa oferta',
+      kpiRejected: 'Tasa rechazo', kpiActive: 'Activas',
+      funnelApplied: 'Aplicado', funnelScreening: 'Screening',
+      funnelInterview: 'Entrevista', funnelOffer: 'Oferta',
+      movedTo: (s) => `Movido a ${s}`,
+      toastAdded: '✓ Agregada', toastUpdated: '✓ Actualizada',
+      toastDeleted: '✓ Eliminada', toastAllClear: '✓ Todo limpio',
+      toastCsv: '✓ CSV exportado', toastBackup: '✓ Backup descargado',
+      toastImported: (n) => `✓ ${n} importadas`,
+      toastNoData: 'Nada que exportar', toastBadFile: 'Archivo inválido',
+      confirmDelete: '¿Eliminar esta aplicación?',
+      confirmDeleteMsg: 'Esta acción no se puede deshacer.',
+      confirmClear: '¿Borrar TODAS las aplicaciones?',
+      confirmClearMsg: 'Se eliminarán todas tus aplicaciones.',
+      confirmImport: (n) => `¿Importar ${n} aplicaciones? Se agregarán a las existentes.`,
+      noData: 'Sin datos',
+      langBtn: '🌐 EN', themeLight: '☀️', themeDark: '🌙',
     },
     en: {
-      subtitle:'Track every application, interview and offer',
-      tabTable:'📋 Table',tabKanban:'🗂 Kanban',tabDashboard:'📊 Dashboard',
-      searchPlaceholder:'🔍 Search company, position...',
-      btnNew:'+ New',btnCsv:'⬇ CSV',btnBackup:'💾 Backup',btnRestore:'📥 Restore',btnClear:'🗑 Clear all',
-      btnCancel:'Cancel',btnSave:'Save',btnConfirm:'Confirm',
-      filterAll:'All statuses',filterAllLocations:'All locations',
-      sApplied:'Applied',sInterview:'Interview',sOffer:'Offer',sRejected:'Rejected',
-      colCompany:'Company',colPosition:'Position',colStatus:'Status',colDate:'Date',
-      colSalary:'Salary',colLocation:'Location',colContact:'Contact',colNext:'Next step',colActions:'Actions',
-      emptyMsg:'No applications yet. Add your first one!',
-      chartFunnel:'🎯 Conversion funnel',chartTimeline:'📅 Applications per month',
-      chartCompanies:'🏢 Top companies',chartKPIs:'📈 Key metrics',
-      fCompany:'Company *',fPosition:'Position *',fStatus:'Status',fDate:'Application date',
-      fSalary:'Salary',fLocation:'Location',fLocationPh:'Remote / New York',
-      fContact:'Contact',fNextStep:'Next step',fNextDate:'Next step date',
-      fLastUpdate:'Last update',fLink:'Job posting link',fNotes:'Notes',
-      modalNew:'New application',modalEdit:'Edit application',
-      reminderTitle:'🔔 Reminders',
-      reminderUpcoming:(c,s,d)=>`📅 <strong>${c}</strong> - ${s} on ${d}`,
-      reminderStale:(c)=>`⏰ <strong>${c}</strong> applied 7+ days ago, consider following up`,
-      statTotal:'Total',statApplied:'Applied',statScreening:'Screening',
-      statInterview:'Interview',statOffer:'Offer',statRejected:'Rejected',
-      kpiInterview:'Interview rate',kpiOffer:'Offer rate',kpiRejected:'Rejection rate',kpiActive:'Active',
-      funnelApplied:'Applied',funnelScreening:'Screening',funnelInterview:'Interview',funnelOffer:'Offer',
-      movedTo:(s)=>`Moved to ${s}`,
-      toastAdded:'Added ✓',toastUpdated:'Updated ✓',toastDeleted:'Deleted ✓',toastAllClear:'All cleared ✓',
-      toastCsv:'CSV exported ✓',toastBackup:'Backup downloaded ✓',
-      toastImported:(n)=>`${n} imported ✓`,toastNoData:'Nothing to export',toastBadFile:'Invalid file',
-      confirmDelete:'Delete this application?',confirmDeleteMsg:'This action cannot be undone.',
-      confirmClear:'Delete ALL applications?',confirmClearMsg:'All your applications will be removed. This action cannot be undone.',
-      confirmImport:(n)=>`Import ${n} applications? They will be added to existing ones.`,
-      noData:'No data',langBtn:'🌐 ES',themeLight:'☀️',themeDark:'🌙',
+      subtitle: 'Track every application, interview and offer',
+      tabTable: 'Table', tabKanban: 'Kanban', tabDashboard: 'Dashboard', tabCalendar: 'Calendar',
+      searchPlaceholder: 'Search company, position...',
+      btnNew: 'New', btnCsv: 'CSV', btnBackup: 'Backup',
+      btnRestore: 'Restore', btnClear: 'Clear all',
+      btnCancel: 'Cancel', btnSave: 'Save', btnConfirm: 'Confirm',
+      filterAll: 'All statuses', filterAllLocations: 'All locations',
+      sApplied: 'Applied', sInterview: 'Interview', sOffer: 'Offer', sRejected: 'Rejected',
+      colCompany: 'Company', colPosition: 'Position', colStatus: 'Status', colDate: 'Date',
+      colSalary: 'Salary', colLocation: 'Location', colContact: 'Contact',
+      colNext: 'Next step', colActions: 'Actions', colRating: '★', colTags: 'Tags',
+      emptyMsg: 'No applications yet. Add your first one!',
+      chartFunnel: 'Conversion funnel', chartTimeline: 'Applications per month',
+      chartCompanies: 'Top companies', chartKPIs: 'Key metrics',
+      fCompany: 'Company *', fPosition: 'Position *', fStatus: 'Status', fDate: 'Application date',
+      fSalary: 'Salary', fLocation: 'Location', fLocationPh: 'Remote / New York',
+      fContact: 'Contact', fNextStep: 'Next step', fNextDate: 'Next step date',
+      fLastUpdate: 'Last update', fLink: 'Job posting link',
+      fRating: 'Post-interview rating', fTags: 'Tags', fNotes: 'Notes',
+      modalNew: 'New application', modalEdit: 'Edit application',
+      reminderTitle: 'Reminders',
+      reminderUpcoming: (c,s,d) => `📅 <strong>${c}</strong> — ${s} on ${d}`,
+      reminderStale: (c) => `⏰ <strong>${c}</strong> applied 7+ days ago, consider following up`,
+      statTotal: 'Total', statApplied: 'Applied', statScreening: 'Screening',
+      statInterview: 'Interview', statOffer: 'Offer', statRejected: 'Rejected',
+      kpiInterview: 'Interview rate', kpiOffer: 'Offer rate',
+      kpiRejected: 'Rejection rate', kpiActive: 'Active',
+      funnelApplied: 'Applied', funnelScreening: 'Screening',
+      funnelInterview: 'Interview', funnelOffer: 'Offer',
+      movedTo: (s) => `Moved to ${s}`,
+      toastAdded: '✓ Added', toastUpdated: '✓ Updated',
+      toastDeleted: '✓ Deleted', toastAllClear: '✓ All cleared',
+      toastCsv: '✓ CSV exported', toastBackup: '✓ Backup downloaded',
+      toastImported: (n) => `✓ ${n} imported`,
+      toastNoData: 'Nothing to export', toastBadFile: 'Invalid file',
+      confirmDelete: 'Delete this application?',
+      confirmDeleteMsg: 'This action cannot be undone.',
+      confirmClear: 'Delete ALL applications?',
+      confirmClearMsg: 'All your applications will be removed.',
+      confirmImport: (n) => `Import ${n} applications? They'll be added to existing ones.`,
+      noData: 'No data',
+      langBtn: '🌐 ES', themeLight: '☀️', themeDark: '🌙',
     }
   };
-  let lang=localStorage.getItem('lang')||'es';
-  let theme=localStorage.getItem('theme')||'dark';
-  const t=()=>TRANSLATIONS[lang];
-  function applyLang(){
-    const tr=t();
-    document.documentElement.lang=lang;
-    document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(tr[k]&&typeof tr[k]==='string')el.textContent=tr[k];});
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{const k=el.dataset.i18nPlaceholder;if(tr[k])el.placeholder=tr[k];});
-    document.querySelectorAll('select#status option,select#filterStatus option').forEach(opt=>{const k=opt.dataset.i18n;if(k&&tr[k])opt.textContent=tr[k];});
-    document.getElementById('langBtn').textContent=tr.langBtn;
+
+  let lang = localStorage.getItem('lang') || 'es';
+  let theme = localStorage.getItem('theme') || 'dark';
+  const t = () => TRANSLATIONS[lang];
+
+  function applyLang() {
+    const tr = t();
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (tr[key] && typeof tr[key] === 'string') el.textContent = tr[key];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.dataset.i18nPlaceholder;
+      if (tr[key]) el.placeholder = tr[key];
+    });
+    document.querySelectorAll('select#status option, select#filterStatus option').forEach(opt => {
+      const key = opt.dataset.i18n;
+      if (key && tr[key]) opt.textContent = tr[key];
+    });
+    document.getElementById('langBtn').textContent = tr.langBtn;
     renderAll();
   }
-  function toggleLang(){lang=lang==='es'?'en':'es';localStorage.setItem('lang',lang);applyLang();}
-  function applyTheme(){
-    if(theme==='light'){document.body.classList.add('light-mode');document.getElementById('themeBtn').textContent=t().themeDark;}
-    else{document.body.classList.remove('light-mode');document.getElementById('themeBtn').textContent=t().themeLight;}
+
+  function toggleLang() {
+    lang = lang === 'es' ? 'en' : 'es';
+    localStorage.setItem('lang', lang);
+    applyLang();
   }
-  function toggleTheme(){theme=theme==='dark'?'light':'dark';localStorage.setItem('theme',theme);applyTheme();}
-  let jobs=JSON.parse(localStorage.getItem('jobs')||'[]');
-  let sortKey='date',sortDir=-1;
-  const $=(id)=>document.getElementById(id);
-  const escapeHtml=(s)=>!s?'':String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  function save(){localStorage.setItem('jobs',JSON.stringify(jobs));renderAll();}
-  function toast(msg,type='success'){
-    const el=$('toast');el.textContent=msg;
-    el.style.background=type==='error'?'linear-gradient(135deg, #ef4444, #dc2626)':'linear-gradient(135deg, #10b981, #059669)';
-    el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);
+
+  function applyTheme() {
+    if (theme === 'light') {
+      document.body.classList.add('light-mode');
+      document.getElementById('themeBtn').textContent = t().themeDark;
+    } else {
+      document.body.classList.remove('light-mode');
+      document.getElementById('themeBtn').textContent = t().themeLight;
+    }
   }
-  let _confirmCallback=null;
-  function showConfirm(title,msg,callback){$('confirmTitle').textContent=title;$('confirmMsg').textContent=msg;_confirmCallback=callback;$('confirmModal').classList.add('active');}
-  function closeConfirm(){$('confirmModal').classList.remove('active');_confirmCallback=null;}
-  $('confirmOkBtn').addEventListener('click',()=>{if(_confirmCallback)_confirmCallback();closeConfirm();});
-  document.querySelectorAll('.tab').forEach(tab=>{
-    tab.addEventListener('click',()=>{
-      document.querySelectorAll('.tab').forEach(t2=>t2.classList.remove('active'));
-      document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));
-      tab.classList.add('active');$('view-'+tab.dataset.view).classList.remove('hidden');
-      if(tab.dataset.view==='dashboard')renderDashboard();
-      if(tab.dataset.view==='kanban')renderKanban();
+
+  function toggleTheme() {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', theme);
+    applyTheme();
+  }
+
+  // ====== CORE DATA ======
+  let jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
+  let sortKey = 'date', sortDir = -1;
+  const $ = (id) => document.getElementById(id);
+  const escapeHtml = (s) => !s ? '' : String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function save() {
+    localStorage.setItem('jobs', JSON.stringify(jobs));
+    renderAll();
+  }
+
+  function toast(msg, type = 'success') {
+    const el = $('toast');
+    el.textContent = msg;
+    el.style.background = type === 'error' ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #10b981, #059669)';
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  // ====== CONFIRM DIALOG ======
+  let _confirmCallback = null;
+  function showConfirm(title, msg, callback) {
+    $('confirmTitle').textContent = title;
+    $('confirmMsg').textContent = msg;
+    _confirmCallback = callback;
+    $('confirmModal').classList.add('active');
+  }
+  function closeConfirm() {
+    $('confirmModal').classList.remove('active');
+    _confirmCallback = null;
+  }
+  $('confirmOkBtn').addEventListener('click', () => {
+    if (_confirmCallback) _confirmCallback();
+    closeConfirm();
+  });
+
+  // ====== TABS ======
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t2 => t2.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+      tab.classList.add('active');
+      $('view-' + tab.dataset.view).classList.remove('hidden');
+      if (tab.dataset.view === 'dashboard') renderDashboard();
+      if (tab.dataset.view === 'kanban') renderKanban();
+      if (tab.dataset.view === 'calendar') renderCalendar();
     });
   });
-  function sortTable(key){
-    if(sortKey===key)sortDir*=-1;else{sortKey=key;sortDir=1;}
-    document.querySelectorAll('th[data-sort]').forEach(th=>{
-      th.classList.toggle('sorted',th.dataset.sort===key);
-      const icon=th.querySelector('.sort-icon');
-      if(icon)icon.textContent=th.dataset.sort===key?(sortDir===1?'↑':'↓'):'↕';
+
+  // ====== SORT ======
+  function sortTable(key) {
+    if (sortKey === key) sortDir *= -1;
+    else { sortKey = key; sortDir = 1; }
+    document.querySelectorAll('th[data-sort]').forEach(th => {
+      th.classList.toggle('sorted', th.dataset.sort === key);
+      const icon = th.querySelector('.sort-icon');
+      if (icon) icon.textContent = th.dataset.sort === key ? (sortDir === 1 ? '↑' : '↓') : '↕';
     });
     renderTable();
   }
-  function renderReminders(){
-    const tr=t();const today=new Date();today.setHours(0,0,0,0);
-    const in3days=new Date(today);in3days.setDate(today.getDate()+3);
-    const week=new Date(today);week.setDate(today.getDate()-7);
-    const upcoming=jobs.filter(j=>{if(!j.nextStepDate)return false;const d=new Date(j.nextStepDate);return d>=today&&d<=in3days;});
-    const stale=jobs.filter(j=>{if(j.status!=='Aplicado'&&j.status!=='Applied')return false;const d=new Date(j.date||j.lastUpdate);return d<week;});
-    const c=$('reminders');
-    if(upcoming.length===0&&stale.length===0){c.innerHTML='';return;}
-    let html=`<div class="reminders"><h3>${tr.reminderTitle}</h3>`;
-    upcoming.forEach(j=>{html+=`<div class="reminder-item">${tr.reminderUpcoming(escapeHtml(j.company),escapeHtml(j.nextStep),j.nextStepDate)}</div>`;});
-    stale.forEach(j=>{html+=`<div class="reminder-item">${tr.reminderStale(escapeHtml(j.company))}</div>`;});
-    html+='</div>';c.innerHTML=html;
-  }
-  function renderStats(){
-    const tr=t();const total=jobs.length;const by=(s)=>jobs.filter(j=>j.status===s).length;
-    const stats=[{label:tr.statTotal,value:total},{label:tr.statApplied,value:by('Aplicado')},{label:tr.statScreening,value:by('Screening')},{label:tr.statInterview,value:by('Entrevista')},{label:tr.statOffer,value:by('Oferta')},{label:tr.statRejected,value:by('Rechazado')}];
-    $('stats').innerHTML=stats.map((s,i)=>`<div class="stat-card" style="--i:${i}"><div class="stat-value">${s.value}</div><div class="stat-label">${s.label}</div></div>`).join('');
-  }
-  function updateLocationFilter(){
-    const locs=[...new Set(jobs.map(j=>j.location).filter(Boolean))].sort();
-    const sel=$('filterLocation');const cur=sel.value;sel.innerHTML='';
-    const def=document.createElement('option');def.value='';def.dataset.i18n='filterAllLocations';def.textContent=t().filterAllLocations;sel.appendChild(def);
-    locs.forEach(loc=>{const opt=document.createElement('option');opt.value=loc;opt.textContent=loc;sel.appendChild(opt);});
-    if(cur)sel.value=cur;
-  }
-  function getStatusLabel(s){const m={'Aplicado':t().sApplied,'Entrevista':t().sInterview,'Oferta':t().sOffer,'Rechazado':t().sRejected,'Screening':'Screening'};return m[s]||s;}
-  function renderTable(){
-    const q=$('search').value.toLowerCase();const fs=$('filterStatus').value;const fl=$('filterLocation').value;
-    let filtered=jobs.filter(j=>{
-      const mq=!q||j.company.toLowerCase().includes(q)||j.position.toLowerCase().includes(q);
-      const ms=!fs||j.status===fs;const ml=!fl||j.location===fl;return mq&&ms&&ml;
+
+  // ====== REMINDERS ======
+  function renderReminders() {
+    const tr = t();
+    const today = new Date(); today.setHours(0,0,0,0);
+    const in3days = new Date(today); in3days.setDate(today.getDate() + 3);
+    const week = new Date(today); week.setDate(today.getDate() - 7);
+    const upcoming = jobs.filter(j => {
+      if (!j.nextStepDate) return false;
+      const d = new Date(j.nextStepDate);
+      return d >= today && d <= in3days;
     });
-    filtered=[...filtered].sort((a,b)=>{const va=(a[sortKey]||'').toLowerCase();const vb=(b[sortKey]||'').toLowerCase();return va<vb?-sortDir:va>vb?sortDir:0;});
-    const tbody=$('tableBody'),empty=$('emptyState');
-    if(filtered.length===0){tbody.innerHTML='';empty.style.display='block';return;}
-    empty.style.display='none';
-    tbody.innerHTML=filtered.map((j,i)=>`<tr style="animation-delay:${i*0.04}s">
-      <td><strong>${escapeHtml(j.company)}</strong></td><td>${escapeHtml(j.position)}</td>
-      <td><span class="status-badge status-${j.status.toLowerCase()}">${getStatusLabel(j.status)}</span></td>
-      <td>${j.date||'-'}</td><td>${escapeHtml(j.salary||'-')}</td><td>${escapeHtml(j.location||'-')}</td>
-      <td>${escapeHtml(j.contact||'-')}</td>
-      <td>${escapeHtml(j.nextStep||'-')}${j.nextStepDate?'<br><small style="color:#64748b">'+j.nextStepDate+'</small>':''}</td>
-      <td>${j.link?`<a class="link" href="${escapeHtml(j.link)}" target="_blank">↗</a>`:'-'}</td>
-      <td><button class="action-btn edit" onclick="editJob('${j.id}')">✏</button><button class="action-btn delete" onclick="confirmDelete('${j.id}')">🗑</button></td>
-    </tr>`).join('');
+    const stale = jobs.filter(j => {
+      if (j.status !== 'Aplicado' && j.status !== 'Applied') return false;
+      const d = new Date(j.date || j.lastUpdate);
+      return d < week;
+    });
+    const c = $('reminders');
+    if (upcoming.length === 0 && stale.length === 0) { c.innerHTML = ''; return; }
+    let html = `<div class="reminders"><h3>🔔 ${tr.reminderTitle}</h3>`;
+    upcoming.forEach(j => { html += `<div class="reminder-item">${tr.reminderUpcoming(escapeHtml(j.company), escapeHtml(j.nextStep), j.nextStepDate)}</div>`; });
+    stale.forEach(j => { html += `<div class="reminder-item">${tr.reminderStale(escapeHtml(j.company))}</div>`; });
+    html += '</div>';
+    c.innerHTML = html;
   }
-  function renderKanban(){
-    const tr=t();
-    const COLS=[{key:'Aplicado',label:tr.funnelApplied,cls:'aplicado'},{key:'Screening',label:tr.funnelScreening,cls:'screening'},{key:'Entrevista',label:tr.funnelInterview,cls:'entrevista'},{key:'Oferta',label:tr.funnelOffer,cls:'oferta'},{key:'Rechazado',label:tr.sRejected,cls:'rechazado'}];
-    $('kanban').innerHTML=COLS.map(col=>{
-      const items=jobs.filter(j=>j.status===col.key);
-      return `<div class="kanban-column" data-status="${col.key}" ondragover="event.preventDefault();this.classList.add('drag-over');" ondragleave="this.classList.remove('drag-over');" ondrop="handleDrop(event,'${col.key}')">
-        <div class="kanban-header ${col.cls}">${col.label} (${items.length})</div>
-        ${items.map((j,i)=>`<div class="kanban-card" draggable="true" data-id="${j.id}" style="animation-delay:${i*0.05}s" ondragstart="handleDragStart(event,'${j.id}')" ondragend="this.classList.remove('dragging')" onclick="editJob('${j.id}')">
-          <div class="kanban-card-company">${escapeHtml(j.company)}</div>
-          <div class="kanban-card-position">${escapeHtml(j.position)}</div>
-          <div class="kanban-card-meta"><span>${j.date||''}</span><span>${escapeHtml(j.salary||'')}</span></div>
-        </div>`).join('')}
-      </div>`;
+
+  // ====== STATS ======
+  function renderStats() {
+    const tr = t();
+    const total = jobs.length;
+    const by = (s) => jobs.filter(j => j.status === s).length;
+    const stats = [
+      {label:tr.statTotal, value:total},
+      {label:tr.statApplied, value:by('Aplicado')},
+      {label:tr.statScreening, value:by('Screening')},
+      {label:tr.statInterview, value:by('Entrevista')},
+      {label:tr.statOffer, value:by('Oferta')},
+      {label:tr.statRejected, value:by('Rechazado')}
+    ];
+    $('stats').innerHTML = stats.map(s => `
+      <div class="stat-card">
+        <div class="stat-value">${s.value}</div>
+        <div class="stat-label">${s.label}</div>
+      </div>`).join('');
+  }
+
+  // ====== LOCATION FILTER ======
+  function updateLocationFilter() {
+    const locs = [...new Set(jobs.map(j => j.location).filter(Boolean))].sort();
+    const sel = $('filterLocation');
+    const cur = sel.value;
+    sel.innerHTML = '';
+    const def = document.createElement('option');
+    def.value = ''; def.dataset.i18n = 'filterAllLocations';
+    def.textContent = t().filterAllLocations;
+    sel.appendChild(def);
+    locs.forEach(loc => {
+      const opt = document.createElement('option');
+      opt.value = loc; opt.textContent = loc;
+      sel.appendChild(opt);
+    });
+    if (cur) sel.value = cur;
+  }
+
+  // ====== TABLE ======
+  function getStatusLabel(status) {
+    const map = { 'Aplicado': t().sApplied, 'Entrevista': t().sInterview, 'Oferta': t().sOffer, 'Rechazado': t().sRejected, 'Screening': 'Screening' };
+    return map[status] || status;
+  }
+
+  function renderTable() {
+    const tr = t();
+    const q = $('search').value.toLowerCase();
+    const fs = $('filterStatus').value;
+    const fl = $('filterLocation').value;
+    let filtered = jobs.filter(j => {
+      const mq = !q || j.company.toLowerCase().includes(q) || j.position.toLowerCase().includes(q);
+      const ms = !fs || j.status === fs;
+      const ml = !fl || j.location === fl;
+      return mq && ms && ml;
+    });
+    filtered = [...filtered].sort((a, b) => {
+      const va = (a[sortKey] || '').toLowerCase();
+      const vb = (b[sortKey] || '').toLowerCase();
+      return va < vb ? -sortDir : va > vb ? sortDir : 0;
+    });
+    const tbody = $('tableBody'), empty = $('emptyState');
+    if (filtered.length === 0) { tbody.innerHTML=''; empty.style.display='flex'; return; }
+    empty.style.display='none';
+    tbody.innerHTML = filtered.map(j => `
+      <tr>
+        <td><strong>${escapeHtml(j.company)}</strong><a class="li-btn" href="https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(j.company)}" target="_blank" title="LinkedIn">in</a></td>
+        <td>${escapeHtml(j.position)}</td>
+        <td><span class="status-badge status-${j.status.toLowerCase()}">${getStatusLabel(j.status)}</span></td>
+        <td style="color:var(--text-2)">${j.date || '—'}</td>
+        <td style="color:var(--text-2)">${escapeHtml(j.salary || '—')}</td>
+        <td style="color:var(--text-2)">${escapeHtml(j.location || '—')}</td>
+        <td style="color:var(--text-2)">${escapeHtml(j.contact || '—')}</td>
+        <td style="color:var(--text-2)">${escapeHtml(j.nextStep || '—')}${j.nextStepDate ? '<br><small style="color:var(--text-3)">'+j.nextStepDate+'</small>' : ''}</td>
+        <td>${j.link ? `<a class="link" href="${escapeHtml(j.link)}" target="_blank">↗</a>` : '—'}</td>
+        <td style="color:var(--yellow)">${j.rating ? '★'.repeat(j.rating) : '—'}</td>
+        <td>${j.tags ? j.tags.split(',').map(tg => tg.trim()).filter(Boolean).map(tg => `<span class="tag-pill">${escapeHtml(tg)}</span>`).join('') : '—'}</td>
+        <td>
+          <button class="action-btn edit" onclick="editJob('${j.id}')">Edit</button>
+          <button class="action-btn delete" onclick="confirmDelete('${j.id}')">Del</button>
+        </td>
+      </tr>`).join('');
+  }
+
+  // ====== KANBAN ======
+  function renderKanban() {
+    const tr = t();
+    const COLS = [
+      {key:'Aplicado', label:tr.funnelApplied, cls:'aplicado'},
+      {key:'Screening', label:tr.funnelScreening, cls:'screening'},
+      {key:'Entrevista', label:tr.funnelInterview, cls:'entrevista'},
+      {key:'Oferta', label:tr.funnelOffer, cls:'oferta'},
+      {key:'Rechazado', label:tr.sRejected, cls:'rechazado'}
+    ];
+    const k = $('kanban');
+    k.innerHTML = COLS.map(col => {
+      const items = jobs.filter(j => j.status === col.key);
+      return `
+        <div class="kanban-column" data-status="${col.key}"
+             ondragover="event.preventDefault(); this.classList.add('drag-over');"
+             ondragleave="this.classList.remove('drag-over');"
+             ondrop="handleDrop(event, '${col.key}')">
+          <div class="kanban-header ${col.cls}">
+            <span>${col.label}</span>
+            <span class="kh-count">${items.length}</span>
+          </div>
+          ${items.map(j => `
+            <div class="kanban-card" draggable="true" data-id="${j.id}"
+                 ondragstart="handleDragStart(event, '${j.id}')"
+                 ondragend="this.classList.remove('dragging')"
+                 onclick="editJob('${j.id}')">
+              <div class="kanban-card-company">${escapeHtml(j.company)}</div>
+              <div class="kanban-card-position">${escapeHtml(j.position)}</div>
+              <div class="kanban-card-meta">
+                <span>${j.date || ''}</span>
+                <span>${escapeHtml(j.salary || '')}</span>
+              </div>
+            </div>`).join('')}
+        </div>`;
     }).join('');
   }
-  function handleDragStart(e,id){e.dataTransfer.setData('text/plain',id);e.target.classList.add('dragging');}
-  function handleDrop(e,status){
-    e.preventDefault();document.querySelectorAll('.kanban-column').forEach(c=>c.classList.remove('drag-over'));
-    const id=e.dataTransfer.getData('text/plain');const job=jobs.find(j=>j.id===id);
-    if(job&&job.status!==status){job.status=status;job.lastUpdate=new Date().toISOString().split('T')[0];save();toast(t().movedTo(status));}
+  function handleDragStart(e, id) {
+    e.dataTransfer.setData('text/plain', id);
+    e.target.classList.add('dragging');
   }
-  function renderDashboard(){
-    const tr=t();const total=jobs.length||1;
-    const stages=[{name:tr.funnelApplied,count:jobs.length,color:'#3b82f6'},{name:tr.funnelScreening,count:jobs.filter(j=>['Screening','Entrevista','Oferta'].includes(j.status)).length,color:'#f59e0b'},{name:tr.funnelInterview,count:jobs.filter(j=>['Entrevista','Oferta'].includes(j.status)).length,color:'#a855f7'},{name:tr.funnelOffer,count:jobs.filter(j=>j.status==='Oferta').length,color:'#10b981'}];
-    $('funnel').innerHTML=stages.map((s,i)=>{const w=Math.max(20,(s.count/total)*100);return `<div class="funnel-bar" style="background:${s.color};width:${w}%;animation-delay:${i*0.15}s"><span>${s.name}</span><span>${s.count}</span></div>`;}).join('');
-    const rate=(n)=>total>0?Math.round((n/total)*100):0;
-    const interviews=jobs.filter(j=>['Entrevista','Oferta'].includes(j.status)).length;
-    const offers=jobs.filter(j=>j.status==='Oferta').length;const rejected=jobs.filter(j=>j.status==='Rechazado').length;
-    $('kpis').innerHTML=[{label:tr.kpiInterview,value:rate(interviews)+'%'},{label:tr.kpiOffer,value:rate(offers)+'%'},{label:tr.kpiRejected,value:rate(rejected)+'%'},{label:tr.kpiActive,value:jobs.filter(j=>!['Oferta','Rechazado'].includes(j.status)).length}]
-      .map((k,i)=>`<div class="stat-card" style="--i:${i}"><div class="stat-value">${k.value}</div><div class="stat-label">${k.label}</div></div>`).join('');
-    drawTimelineChart();drawCompaniesChart();
+  function handleDrop(e, status) {
+    e.preventDefault();
+    document.querySelectorAll('.kanban-column').forEach(c => c.classList.remove('drag-over'));
+    const id = e.dataTransfer.getData('text/plain');
+    const job = jobs.find(j => j.id === id);
+    if (job && job.status !== status) {
+      job.status = status;
+      job.lastUpdate = new Date().toISOString().split('T')[0];
+      save();
+      toast(t().movedTo(status));
+    }
   }
-  function drawTimelineChart(){
-    const canvas=$('chartTimeline');const ctx=canvas.getContext('2d');const W=canvas.width=canvas.offsetWidth;const H=canvas.height;ctx.clearRect(0,0,W,H);
-    const months={};jobs.forEach(j=>{if(!j.date)return;const m=j.date.substring(0,7);months[m]=(months[m]||0)+1;});
-    const keys=Object.keys(months).sort();
-    if(keys.length===0){ctx.fillStyle='#64748b';ctx.font='14px sans-serif';ctx.textAlign='center';ctx.fillText(t().noData,W/2,H/2);return;}
-    const max=Math.max(...Object.values(months));const padding=30;const barW=(W-padding*2)/keys.length;
-    keys.forEach((k,i)=>{
-      const val=months[k];const barH=((H-padding*2)*val)/max;const x=padding+i*barW+4;const y=H-padding-barH;
-      const grad=ctx.createLinearGradient(0,y,0,H-padding);grad.addColorStop(0,'#60a5fa');grad.addColorStop(1,'#8b5cf6');ctx.fillStyle=grad;ctx.fillRect(x,y,barW-8,barH);
-      ctx.fillStyle=theme==='light'?'#0f172a':'#e2e8f0';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText(val,x+(barW-8)/2,y-5);
-      ctx.fillStyle='#94a3b8';ctx.font='10px sans-serif';ctx.fillText(k,x+(barW-8)/2,H-10);
+
+  // ====== DASHBOARD ======
+  function renderDashboard() {
+    const tr = t();
+    const total = jobs.length || 1;
+    const stages = [
+      {name:tr.funnelApplied,   count: jobs.length, color:'#3b82f6'},
+      {name:tr.funnelScreening, count: jobs.filter(j => ['Screening','Entrevista','Oferta'].includes(j.status)).length, color:'#f59e0b'},
+      {name:tr.funnelInterview, count: jobs.filter(j => ['Entrevista','Oferta'].includes(j.status)).length, color:'#8b5cf6'},
+      {name:tr.funnelOffer,     count: jobs.filter(j => j.status === 'Oferta').length, color:'#10b981'}
+    ];
+    $('funnel').innerHTML = stages.map(s => {
+      const w = Math.max(12, (s.count / total) * 100);
+      return `<div class="funnel-bar" style="background:${s.color}; width:${w}%; opacity:0.9;">
+        <span>${s.name}</span><span class="funnel-count">${s.count}</span>
+      </div>`;
+    }).join('');
+    const rate = (n) => total > 0 ? Math.round((n / total) * 100) : 0;
+    const interviews = jobs.filter(j => ['Entrevista','Oferta'].includes(j.status)).length;
+    const offers = jobs.filter(j => j.status === 'Oferta').length;
+    const rejected = jobs.filter(j => j.status === 'Rechazado').length;
+    const kpis = [
+      {label:tr.kpiInterview, value: rate(interviews) + '%'},
+      {label:tr.kpiOffer,     value: rate(offers) + '%'},
+      {label:tr.kpiRejected,  value: rate(rejected) + '%'},
+      {label:tr.kpiActive,    value: jobs.filter(j => !['Oferta','Rechazado'].includes(j.status)).length}
+    ];
+    $('kpis').innerHTML = kpis.map(k => `
+      <div class="stat-card">
+        <div class="stat-value">${k.value}</div>
+        <div class="stat-label">${k.label}</div>
+      </div>`).join('');
+    drawTimelineChart();
+    drawCompaniesChart();
+  }
+
+  function drawTimelineChart() {
+    const canvas = $('chartTimeline');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width = canvas.offsetWidth;
+    const H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+    const months = {};
+    jobs.forEach(j => { if (!j.date) return; const m = j.date.substring(0, 7); months[m] = (months[m] || 0) + 1; });
+    const keys = Object.keys(months).sort();
+    if (keys.length === 0) {
+      ctx.fillStyle = 'var(--text-3)'; ctx.font = '13px Inter, sans-serif'; ctx.textAlign='center';
+      ctx.fillText(t().noData, W/2, H/2); return;
+    }
+    const max = Math.max(...Object.values(months));
+    const padding = 36;
+    const barW = (W - padding*2) / keys.length;
+    keys.forEach((k,i) => {
+      const val = months[k];
+      const barH = ((H - padding*2) * val) / max;
+      const x = padding + i * barW + 4;
+      const y = H - padding - barH;
+      ctx.fillStyle = '#6366f1';
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      ctx.roundRect(x, y, barW - 8, barH, 4);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = theme === 'light' ? '#111118' : '#f0f0f4';
+      ctx.font = '11px Inter, sans-serif'; ctx.textAlign='center';
+      ctx.fillText(val, x + (barW-8)/2, y - 5);
+      ctx.fillStyle = theme === 'light' ? '#9898a8' : '#5c5c70';
+      ctx.font = '10px Inter, sans-serif';
+      ctx.fillText(k.slice(5), x + (barW-8)/2, H - 10);
     });
   }
-  function drawCompaniesChart(){
-    const canvas=$('chartCompanies');const ctx=canvas.getContext('2d');const W=canvas.width=canvas.offsetWidth;const H=canvas.height;ctx.clearRect(0,0,W,H);
-    const counts={};jobs.forEach(j=>{counts[j.company]=(counts[j.company]||0)+1;});
-    const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    if(top.length===0){ctx.fillStyle='#64748b';ctx.font='14px sans-serif';ctx.textAlign='center';ctx.fillText(t().noData,W/2,H/2);return;}
-    const max=top[0][1];const bH=(H-20)/top.length-8;
-    top.forEach(([name,val],i)=>{
-      const y=10+i*(bH+8);const w=((W-150)*val)/max;
-      const grad=ctx.createLinearGradient(120,0,120+w,0);grad.addColorStop(0,'#a78bfa');grad.addColorStop(1,'#f472b6');ctx.fillStyle=grad;ctx.fillRect(120,y,w,bH);
-      ctx.fillStyle=theme==='light'?'#0f172a':'#e2e8f0';ctx.font='12px sans-serif';ctx.textAlign='right';ctx.fillText(name.substring(0,15),115,y+bH/2+4);
-      ctx.textAlign='left';ctx.fillText(val,125+w,y+bH/2+4);
+
+  function drawCompaniesChart() {
+    const canvas = $('chartCompanies');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width = canvas.offsetWidth;
+    const H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+    const counts = {};
+    jobs.forEach(j => { counts[j.company] = (counts[j.company] || 0) + 1; });
+    const top = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0,5);
+    if (top.length === 0) {
+      ctx.fillStyle = theme === 'light' ? '#9898a8' : '#5c5c70';
+      ctx.font = '13px Inter, sans-serif'; ctx.textAlign='center';
+      ctx.fillText(t().noData, W/2, H/2); return;
+    }
+    const max = top[0][1];
+    const barH2 = (H - 20) / top.length - 8;
+    top.forEach(([name, val], i) => {
+      const y = 10 + i * (barH2 + 8);
+      const w = ((W - 150) * val) / max;
+      ctx.fillStyle = '#8b5cf6';
+      ctx.globalAlpha = 0.8 - i * 0.1;
+      ctx.beginPath();
+      ctx.roundRect(120, y, Math.max(w, 4), barH2, 4);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = theme === 'light' ? '#111118' : '#f0f0f4';
+      ctx.font = '12px Inter, sans-serif'; ctx.textAlign='right';
+      ctx.fillText(name.substring(0,16), 115, y + barH2/2 + 4);
+      ctx.fillStyle = theme === 'light' ? '#9898a8' : '#5c5c70';
+      ctx.textAlign='left';
+      ctx.fillText(val, 125 + w, y + barH2/2 + 4);
     });
   }
-  function setupAutocomplete(inputId,listId,getter){
-    const input=$(inputId),list=$(listId);
-    input.addEventListener('input',()=>{
-      const q=input.value.toLowerCase().trim();if(!q){list.classList.remove('show');return;}
-      const suggestions=[...new Set(jobs.map(getter).filter(Boolean))].filter(s=>s.toLowerCase().includes(q)&&s.toLowerCase()!==q).slice(0,6);
-      if(suggestions.length===0){list.classList.remove('show');return;}
-      list.innerHTML=suggestions.map(s=>`<div class="autocomplete-item">${escapeHtml(s)}</div>`).join('');
+
+  // ====== AUTOCOMPLETE ======
+  function setupAutocomplete(inputId, listId, getter) {
+    const input = $(inputId), list = $(listId);
+    input.addEventListener('input', () => {
+      const q = input.value.toLowerCase().trim();
+      if (!q) { list.classList.remove('show'); return; }
+      const suggestions = [...new Set(jobs.map(getter).filter(Boolean))]
+        .filter(s => s.toLowerCase().includes(q) && s.toLowerCase() !== q)
+        .slice(0, 6);
+      if (suggestions.length === 0) { list.classList.remove('show'); return; }
+      list.innerHTML = suggestions.map(s => `<div class="autocomplete-item">${escapeHtml(s)}</div>`).join('');
       list.classList.add('show');
-      list.querySelectorAll('.autocomplete-item').forEach(item=>{item.addEventListener('click',()=>{input.value=item.textContent;list.classList.remove('show');});});
+      list.querySelectorAll('.autocomplete-item').forEach(item => {
+        item.addEventListener('click', () => { input.value = item.textContent; list.classList.remove('show'); });
+      });
     });
-    input.addEventListener('blur',()=>setTimeout(()=>list.classList.remove('show'),200));
+    input.addEventListener('blur', () => setTimeout(() => list.classList.remove('show'), 200));
   }
-  function openModal(job=null){
-    $('modal').classList.add('active');$('jobForm').reset();const tr=t();
-    if(job){$('modalTitle').textContent=tr.modalEdit;Object.keys(job).forEach(k=>{if($(k))$(k).value=job[k]||'';});$('jobId').value=job.id;}
-    else{$('modalTitle').textContent=tr.modalNew;$('jobId').value='';$('date').value=new Date().toISOString().split('T')[0];}
+
+  // ====== MODAL ======
+  function openModal(job = null) {
+    $('modal').classList.add('active');
+    $('jobForm').reset();
+    const tr = t();
+    if (job) {
+      $('modalTitle').textContent = tr.modalEdit;
+      Object.keys(job).forEach(k => { if ($(k)) $(k).value = job[k] || ''; });
+      $('jobId').value = job.id;
+      setStars(job.rating || 0);
+      renderTagChips(job.tags || '');
+    } else {
+      $('modalTitle').textContent = tr.modalNew;
+      $('jobId').value = '';
+      $('date').value = new Date().toISOString().split('T')[0];
+      setStars(0);
+      renderTagChips('');
+    }
   }
-  function closeModal(){$('modal').classList.remove('active');}
-  function editJob(id){const j=jobs.find(j=>j.id===id);if(j)openModal(j);}
-  function confirmDelete(id){const tr=t();showConfirm(tr.confirmDelete,tr.confirmDeleteMsg,()=>{jobs=jobs.filter(j=>j.id!==id);save();toast(tr.toastDeleted);});}
-  function confirmClearAll(){const tr=t();showConfirm(tr.confirmClear,tr.confirmClearMsg,()=>{jobs=[];save();toast(tr.toastAllClear);});}
-  function exportCSV(){
-    const tr=t();if(jobs.length===0)return toast(tr.toastNoData,'error');
-    const h=[tr.colCompany,tr.colPosition,tr.colStatus,tr.colDate,tr.colSalary,tr.colLocation,tr.colContact,tr.colNext,'Link',tr.fNotes];
-    const rows=jobs.map(j=>[j.company,j.position,j.status,j.date,j.salary,j.location,j.contact,j.nextStep,j.nextStepDate,j.link,j.notes].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(','));
-    downloadFile(['﻿'+[h.join(','),...rows].join('
-')].join(''),'csv','text/csv');toast(tr.toastCsv);
+  function closeModal() { $('modal').classList.remove('active'); }
+  function editJob(id) { const j = jobs.find(j => j.id === id); if (j) openModal(j); }
+
+  // ====== DELETE / CLEAR ======
+  function confirmDelete(id) {
+    const tr = t();
+    showConfirm(tr.confirmDelete, tr.confirmDeleteMsg, () => {
+      jobs = jobs.filter(j => j.id !== id);
+      save(); toast(tr.toastDeleted);
+    });
   }
-  async function exportJSON(){
-    const tr=t();if(jobs.length===0)return toast(tr.toastNoData,'error');
-    const data=JSON.stringify({version:2,lang,exportedAt:new Date().toISOString(),jobs},null,2);
-    if(window.electronAPI){const r=await window.electronAPI.saveBackup(data);if(r.success)toast(tr.toastBackup);}
-    else{downloadFile(data,'json','application/json');toast(tr.toastBackup);}
+  function confirmClearAll() {
+    const tr = t();
+    showConfirm(tr.confirmClear, tr.confirmClearMsg, () => {
+      jobs = []; save(); toast(tr.toastAllClear);
+    });
   }
-  async function importJSON(){
-    if(window.electronAPI){const r=await window.electronAPI.loadBackup();if(r.success)handleImport(r.data);}
-    else $('fileInput').click();
+
+  // ====== EXPORT / IMPORT ======
+  function exportCSV() {
+    const tr = t();
+    if (jobs.length === 0) return toast(tr.toastNoData, 'error');
+    const h = [tr.colCompany,tr.colPosition,tr.colStatus,tr.colDate,tr.colSalary,tr.colLocation,tr.colContact,tr.colNext,'Link',tr.fNotes];
+    const rows = jobs.map(j => [j.company,j.position,j.status,j.date,j.salary,j.location,j.contact,j.nextStep,j.nextStepDate,j.link,j.notes]
+      .map(v => `"${(v||'').replace(/"/g,'""')}"`).join(','));
+    downloadFile('﻿' + [h.join(','), ...rows].join('\n'), 'csv', 'text/csv');
+    toast(tr.toastCsv);
   }
-  $('fileInput').addEventListener('change',(e)=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=(ev)=>handleImport(ev.target.result);r.readAsText(f);e.target.value='';});
-  function handleImport(raw){
-    const tr=t();try{const d=JSON.parse(raw);const imported=Array.isArray(d)?d:d.jobs;if(!Array.isArray(imported))throw new Error('invalid');
-      showConfirm(tr.btnRestore,tr.confirmImport(imported.length),()=>{jobs=[...imported,...jobs];save();toast(tr.toastImported(imported.length));});
-    }catch(err){toast(tr.toastBadFile,'error');}
+  async function exportJSON() {
+    const tr = t();
+    if (jobs.length === 0) return toast(tr.toastNoData, 'error');
+    const data = JSON.stringify({ version: 2, lang, exportedAt: new Date().toISOString(), jobs }, null, 2);
+    if (window.electronAPI) {
+      const r = await window.electronAPI.saveBackup(data);
+      if (r.success) toast(tr.toastBackup);
+    } else {
+      downloadFile(data, 'json', 'application/json');
+      toast(tr.toastBackup);
+    }
   }
-  function downloadFile(content,ext,type){const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`job-tracker-${new Date().toISOString().split('T')[0]}.${ext}`;a.click();}
-  $('jobForm').addEventListener('submit',(e)=>{
-    e.preventDefault();const tr=t();const id=$('jobId').value;
-    const data={id:id||Date.now().toString()+Math.random().toString(36).slice(2,8),company:$('company').value.trim(),position:$('position').value.trim(),status:$('status').value,date:$('date').value,salary:$('salary').value.trim(),location:$('location').value.trim(),contact:$('contact').value.trim(),nextStep:$('nextStep').value.trim(),nextStepDate:$('nextStepDate').value,lastUpdate:$('lastUpdate').value||new Date().toISOString().split('T')[0],link:$('link').value.trim(),notes:$('notes').value.trim()};
-    if(id){jobs=jobs.map(j=>j.id===id?data:j);toast(tr.toastUpdated);}else{jobs.unshift(data);toast(tr.toastAdded);}
-    save();closeModal();
+  async function importJSON() {
+    if (window.electronAPI) {
+      const r = await window.electronAPI.loadBackup();
+      if (r.success) handleImport(r.data);
+    } else {
+      $('fileInput').click();
+    }
+  }
+  $('fileInput').addEventListener('change', (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = (ev) => handleImport(ev.target.result);
+    r.readAsText(f);
+    e.target.value = '';
   });
-  $('search').addEventListener('input',renderTable);
-  $('modal').addEventListener('click',(e)=>{if(e.target.id==='modal')closeModal();});
-  $('confirmModal').addEventListener('click',(e)=>{if(e.target.id==='confirmModal')closeConfirm();});
-  document.addEventListener('keydown',(e)=>{if(e.key==='Escape'){closeModal();closeConfirm();}if((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();openModal();}});
-  setupAutocomplete('company','companyList',j=>j.company);
-  setupAutocomplete('position','positionList',j=>j.position);
-  function renderAll(){updateLocationFilter();renderReminders();renderStats();renderTable();if(!$('view-kanban').classList.contains('hidden'))renderKanban();if(!$('view-dashboard').classList.contains('hidden'))renderDashboard();}
-  applyTheme();applyLang();renderAll();
+  function handleImport(raw) {
+    const tr = t();
+    try {
+      const d = JSON.parse(raw);
+      const imported = Array.isArray(d) ? d : d.jobs;
+      if (!Array.isArray(imported)) throw new Error('invalid');
+      showConfirm(tr.btnRestore, tr.confirmImport(imported.length), () => {
+        jobs = [...imported, ...jobs];
+        save(); toast(tr.toastImported(imported.length));
+      });
+    } catch (err) { toast(tr.toastBadFile, 'error'); }
+  }
+  function downloadFile(content, ext, type) {
+    const blob = new Blob([content], { type });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `job-tracker-${new Date().toISOString().split('T')[0]}.${ext}`;
+    a.click();
+  }
+
+  // ====== STARS ======
+  function setStars(val) {
+    $('rating').value = val;
+    document.querySelectorAll('.star').forEach(s => {
+      s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+    });
+  }
+  document.querySelectorAll('.star').forEach(s => {
+    s.addEventListener('click', () => setStars(parseInt(s.dataset.val)));
+    s.addEventListener('mouseover', () => {
+      document.querySelectorAll('.star').forEach(x => x.classList.toggle('active', parseInt(x.dataset.val) <= parseInt(s.dataset.val)));
+    });
+    s.addEventListener('mouseout', () => setStars(parseInt($('rating').value)));
+  });
+
+  // ====== TAGS ======
+  function renderTagChips(tagsStr) {
+    $('tags').value = tagsStr;
+    const arr = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(Boolean) : [];
+    $('tagsDisplay').innerHTML = arr.map(t =>
+      `<span class="tag-chip">${escapeHtml(t)}<button type="button" onclick="removeTag('${escapeHtml(t)}')">×</button></span>`
+    ).join('');
+  }
+  function removeTag(tag) {
+    const arr = ($('tags').value || '').split(',').map(t => t.trim()).filter(t => t && t !== tag);
+    renderTagChips(arr.join(','));
+  }
+  $('tagsInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const val = $('tagsInput').value.replace(/,/g,'').trim();
+      if (!val) return;
+      const existing = ($('tags').value || '').split(',').map(t => t.trim()).filter(Boolean);
+      if (!existing.includes(val)) existing.push(val);
+      renderTagChips(existing.join(','));
+      $('tagsInput').value = '';
+    }
+  });
+
+  // ====== CALENDAR ======
+  let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
+  const calMonthNames = { es: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+                          en: ['January','February','March','April','May','June','July','August','September','October','November','December'] };
+  const calDayNames  = { es: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'], en: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] };
+
+  function renderCalendar() {
+    const tr = t();
+    const names = calMonthNames[lang] || calMonthNames.es;
+    const days  = calDayNames[lang]  || calDayNames.es;
+    $('calTitle').textContent = `${names[calMonth]} ${calYear}`;
+    const grid = $('calGrid');
+    const today = new Date().toISOString().split('T')[0];
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const events = {};
+    jobs.forEach(j => {
+      const addEv = (date, label, type) => {
+        if (!date) return;
+        if (!events[date]) events[date] = [];
+        events[date].push({ label, type });
+      };
+      if (j.date) addEv(j.date, j.company, 'applied');
+      if (j.nextStepDate) addEv(j.nextStepDate, `${j.company} – ${j.nextStep || tr.colNext}`, j.status === 'Entrevista' ? 'interview' : 'next');
+    });
+    let html = days.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+    for (let i = 0; i < firstDay; i++) html += `<div class="cal-day empty"></div>`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday = dateStr === today;
+      const evs = events[dateStr] || [];
+      html += `<div class="cal-day${isToday?' today':''}">
+        <div class="cal-day-num">${d}</div>
+        ${evs.map(ev => `<div class="cal-event ${ev.type}" title="${escapeHtml(ev.label)}">${escapeHtml(ev.label)}</div>`).join('')}
+      </div>`;
+    }
+    grid.innerHTML = html;
+  }
+  function calPrev() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
+  function calNext() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); }
+
+  // ====== FORM SUBMIT ======
+  $('jobForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const tr = t();
+    const id = $('jobId').value;
+    const data = {
+      id: id || Date.now().toString() + Math.random().toString(36).slice(2,8),
+      company: $('company').value.trim(),
+      position: $('position').value.trim(),
+      status: $('status').value,
+      date: $('date').value,
+      salary: $('salary').value.trim(),
+      location: $('location').value.trim(),
+      contact: $('contact').value.trim(),
+      nextStep: $('nextStep').value.trim(),
+      nextStepDate: $('nextStepDate').value,
+      lastUpdate: $('lastUpdate').value || new Date().toISOString().split('T')[0],
+      link: $('link').value.trim(),
+      rating: parseInt($('rating').value) || 0,
+      tags: $('tags').value.trim(),
+      notes: $('notes').value.trim()
+    };
+    if (id) { jobs = jobs.map(j => j.id === id ? data : j); toast(tr.toastUpdated); }
+    else { jobs.unshift(data); toast(tr.toastAdded); }
+    save(); closeModal();
+  });
+
+  // ====== LISTENERS ======
+  $('search').addEventListener('input', renderTable);
+  $('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
+  $('confirmModal').addEventListener('click', (e) => { if (e.target.id === 'confirmModal') closeConfirm(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeModal(); closeConfirm(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openModal(); }
+  });
+
+  setupAutocomplete('company', 'companyList', j => j.company);
+  setupAutocomplete('position', 'positionList', j => j.position);
+
+  function renderAll() {
+    updateLocationFilter();
+    renderReminders(); renderStats(); renderTable();
+    if (!$('view-kanban').classList.contains('hidden')) renderKanban();
+    if (!$('view-dashboard').classList.contains('hidden')) renderDashboard();
+  }
+
+  // ====== INIT ======
+  applyTheme();
+  applyLang();
+  renderAll();
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js');
+    });
+  }
 </script>
 </body>
 </html>
