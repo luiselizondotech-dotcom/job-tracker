@@ -716,6 +716,47 @@ a.link:hover { color: #a78bfa; text-decoration: underline; }
   justify-content: space-between;
 }
 
+/* ─── NOTE CELL ─────────────────────────────────────── */
+.note-cell {
+  max-width: 180px;
+  max-height: 3.6em;
+  overflow: hidden;
+  font-size: 0.78rem;
+  color: var(--text-2);
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  cursor: help;
+  position: relative;
+}
+.note-cell::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1.2em;
+  background: linear-gradient(transparent, var(--card-bg));
+  pointer-events: none;
+}
+
+/* ─── KANBAN EMPTY STATE ─────────────────────────────── */
+.kanban-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px 12px;
+  margin: 8px 4px;
+  border: 1.5px dashed var(--card-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.2s, border-color 0.2s;
+}
+.kanban-empty:hover { opacity: 1; border-color: var(--blue); }
+.kanban-empty-icon { font-size: 1.4rem; line-height: 1; }
+.kanban-empty-text { font-size: 0.75rem; color: var(--text-2); }
+
 /* ─── DASHBOARD ──────────────────────────────────────── */
 .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .chart-card {
@@ -956,16 +997,85 @@ canvas { max-width: 100%; }
 .view.hidden { display: none; }
 
 /* ─── RESPONSIVE ─────────────────────────────────────── */
+/* ─── MOBILE NAV BAR ─────────────────────────────────── */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: var(--kanban-col);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--card-border);
+  z-index: 200;
+  align-items: stretch;
+}
+.mobile-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  color: var(--fg-3);
+  font-size: 10px;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0;
+}
+.mobile-nav-btn .mn-icon { font-size: 18px; line-height: 1; }
+.mobile-nav-btn.active { color: var(--blue); }
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--fg-1);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: var(--radius);
+  line-height: 1;
+}
+
+/* Sidebar overlay for mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 149;
+}
+.sidebar-overlay.active { display: block; }
+
 @media (max-width: 960px) {
-  .sidebar { display: none; }
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100vh;
+    z-index: 150;
+    transition: left 0.28s cubic-bezier(0.4,0,0.2,1);
+    width: 220px;
+  }
+  .sidebar.open { left: 0; }
+  .hamburger-btn { display: flex; align-items: center; }
+  .mobile-nav { display: flex; }
+  .main { padding-bottom: 60px; }
   .kanban { grid-template-columns: 1fr; }
   .dashboard { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }
 @media (max-width: 600px) {
   .stats { gap: 8px; }
-  .content { padding: 14px; }
-  .topbar { padding: 10px 14px; }
+  .content { padding: 12px; }
+  .topbar { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
+  .topbar-right { flex-wrap: wrap; gap: 6px; }
+  .modal { width: 95vw; max-height: 90vh; overflow-y: auto; padding: 20px 16px; }
+  .topbar-left { width: 100%; }
+  .topbar-right { width: 100%; }
 }
 </style>
 </head>
@@ -1023,6 +1133,9 @@ canvas { max-width: 100%; }
     <button class="icon-btn" onclick="exportJSON()">
       <span>💾</span> <span data-i18n="btnBackup">Backup</span>
     </button>
+    <button class="icon-btn" onclick="exportPDF()">
+      <span>📄</span> <span data-i18n="btnPdf">PDF</span>
+    </button>
     <button class="icon-btn" onclick="importJSON()">
       <span>↑</span> <span data-i18n="btnRestore">Restaurar</span>
     </button>
@@ -1038,6 +1151,7 @@ canvas { max-width: 100%; }
   <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-left">
+      <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
       <div class="search-wrap">
         <span class="search-icon">⌕</span>
         <input type="text" class="search-input" id="search"
@@ -1090,6 +1204,7 @@ canvas { max-width: 100%; }
               <th>Link</th>
               <th data-i18n="colRating">★</th>
               <th data-i18n="colTags">Tags</th>
+              <th data-i18n="colNotes">Notas</th>
               <th data-i18n="colActions">Acciones</th>
             </tr>
           </thead>
@@ -1125,6 +1240,10 @@ canvas { max-width: 100%; }
         <div class="chart-card wide">
           <h3 data-i18n="chartKPIs">Métricas clave</h3>
           <div class="stats" id="kpis"></div>
+        </div>
+        <div class="chart-card wide">
+          <h3 data-i18n="chartResponseRate">Tasa de respuesta por semana</h3>
+          <canvas id="chartResponseRate" height="180"></canvas>
         </div>
       </div>
     </div>
@@ -1266,9 +1385,9 @@ canvas { max-width: 100%; }
       sApplied: 'Aplicado', sInterview: 'Entrevista', sOffer: 'Oferta', sRejected: 'Rechazado',
       colCompany: 'Empresa', colPosition: 'Puesto', colStatus: 'Estado', colDate: 'Fecha',
       colSalary: 'Salario', colLocation: 'Ubicación', colContact: 'Contacto',
-      colNext: 'Próximo paso', colActions: 'Acciones', colRating: '★', colTags: 'Tags',
+      colNext: 'Próximo paso', colActions: 'Acciones', colRating: '★', colTags: 'Tags', colNotes: 'Notas',
       emptyMsg: 'Aún no hay aplicaciones. ¡Agrega la primera!',
-      chartFunnel: 'Embudo de conversión', chartTimeline: 'Aplicaciones por mes',
+      kanbanEmpty: 'Agregar aquí', chartFunnel: 'Embudo de conversión', chartTimeline: 'Aplicaciones por mes', chartResponseRate: 'Tasa de respuesta por semana',
       chartCompanies: 'Top empresas', chartKPIs: 'Métricas clave',
       fCompany: 'Empresa *', fPosition: 'Puesto *', fStatus: 'Estado', fDate: 'Fecha aplicación',
       fSalary: 'Salario', fLocation: 'Ubicación', fLocationPh: 'Remoto / CDMX',
@@ -1288,7 +1407,7 @@ canvas { max-width: 100%; }
       movedTo: (s) => `Movido a ${s}`,
       toastAdded: '✓ Agregada', toastUpdated: '✓ Actualizada',
       toastDeleted: '✓ Eliminada', toastAllClear: '✓ Todo limpio',
-      toastCsv: '✓ CSV exportado', toastBackup: '✓ Backup descargado',
+      toastCsv: '✓ CSV exportado', toastBackup: '✓ Backup descargado', btnPdf: 'PDF',
       toastImported: (n) => `✓ ${n} importadas`,
       toastNoData: 'Nada que exportar', toastBadFile: 'Archivo inválido',
       confirmDelete: '¿Eliminar esta aplicación?',
@@ -1310,9 +1429,9 @@ canvas { max-width: 100%; }
       sApplied: 'Applied', sInterview: 'Interview', sOffer: 'Offer', sRejected: 'Rejected',
       colCompany: 'Company', colPosition: 'Position', colStatus: 'Status', colDate: 'Date',
       colSalary: 'Salary', colLocation: 'Location', colContact: 'Contact',
-      colNext: 'Next step', colActions: 'Actions', colRating: '★', colTags: 'Tags',
+      colNext: 'Next step', colActions: 'Actions', colRating: '★', colTags: 'Tags', colNotes: 'Notes',
       emptyMsg: 'No applications yet. Add your first one!',
-      chartFunnel: 'Conversion funnel', chartTimeline: 'Applications per month',
+      kanbanEmpty: 'Add here', chartFunnel: 'Conversion funnel', chartTimeline: 'Applications per month', chartResponseRate: 'Weekly response rate',
       chartCompanies: 'Top companies', chartKPIs: 'Key metrics',
       fCompany: 'Company *', fPosition: 'Position *', fStatus: 'Status', fDate: 'Application date',
       fSalary: 'Salary', fLocation: 'Location', fLocationPh: 'Remote / New York',
@@ -1332,7 +1451,7 @@ canvas { max-width: 100%; }
       movedTo: (s) => `Moved to ${s}`,
       toastAdded: '✓ Added', toastUpdated: '✓ Updated',
       toastDeleted: '✓ Deleted', toastAllClear: '✓ All cleared',
-      toastCsv: '✓ CSV exported', toastBackup: '✓ Backup downloaded',
+      toastCsv: '✓ CSV exported', toastBackup: '✓ Backup downloaded', btnPdf: 'PDF',
       toastImported: (n) => `✓ ${n} imported`,
       toastNoData: 'Nothing to export', toastBadFile: 'Invalid file',
       confirmDelete: 'Delete this application?',
@@ -1585,6 +1704,7 @@ canvas { max-width: 100%; }
         <td>${j.link ? `<a class="link" href="${escapeHtml(j.link)}" target="_blank">↗</a>` : '—'}</td>
         <td style="color:var(--yellow)">${j.rating ? '★'.repeat(j.rating) : '—'}</td>
         <td>${j.tags ? j.tags.split(',').map(tg => tg.trim()).filter(Boolean).map(tg => `<span class="tag-pill tag-pill-btn" onclick="filterByTag('${escapeHtml(tg)}')" title="Filtrar por ${escapeHtml(tg)}">${escapeHtml(tg)}</span>`).join('') : '—'}</td>
+        <td>${j.notes ? `<div class="note-cell" title="${escapeHtml(j.notes)}">${escapeHtml(j.notes).replace(/\n/g,'<br>')}</div>` : '—'}</td>
         <td>
           <button class="action-btn edit" onclick="editJob('${j.id}')">Edit</button>
           <button class="action-btn delete" onclick="confirmDelete('${j.id}')">Del</button>
@@ -1614,7 +1734,11 @@ canvas { max-width: 100%; }
             <span>${col.label}</span>
             <span class="kh-count">${items.length}</span>
           </div>
-          ${items.map(j => `
+          ${items.length === 0 ? `
+            <div class="kanban-empty" onclick="openModal()">
+              <div class="kanban-empty-icon">＋</div>
+              <div class="kanban-empty-text">${t().kanbanEmpty || 'Agregar aquí'}</div>
+            </div>` : items.map(j => `
             <div class="kanban-card" draggable="true" data-id="${j.id}"
                  ondragstart="handleDragStart(event, '${j.id}')"
                  ondragend="this.classList.remove('dragging')"
@@ -1681,6 +1805,7 @@ canvas { max-width: 100%; }
       </div>`).join('');
     drawTimelineChart();
     drawCompaniesChart();
+    drawResponseRateChart();
   }
 
   function drawTimelineChart() {
@@ -1750,6 +1875,98 @@ canvas { max-width: 100%; }
       ctx.fillStyle = theme === 'light' ? '#9898a8' : '#5c5c70';
       ctx.textAlign='left';
       ctx.fillText(val, 125 + w, y + barH2/2 + 4);
+    });
+  }
+
+  function drawResponseRateChart() {
+    const canvas = $('chartResponseRate');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width = canvas.offsetWidth;
+    const H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Build weekly buckets: key = ISO week "YYYY-Www"
+    function isoWeek(dateStr) {
+      const d = new Date(dateStr);
+      if (isNaN(d)) return null;
+      const tmp = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      const day = tmp.getUTCDay() || 7;
+      tmp.setUTCDate(tmp.getUTCDate() + 4 - day);
+      const y = tmp.getUTCFullYear();
+      const w = Math.ceil(((tmp - new Date(Date.UTC(y, 0, 1))) / 86400000 + 1) / 7);
+      return `${y}-W${String(w).padStart(2,'0')}`;
+    }
+
+    const weeks = {};
+    jobs.forEach(j => {
+      if (!j.date) return;
+      const wk = isoWeek(j.date);
+      if (!wk) return;
+      if (!weeks[wk]) weeks[wk] = { applied: 0, responded: 0 };
+      weeks[wk].applied++;
+      if (['Screening','Entrevista','Oferta'].includes(j.status)) weeks[wk].responded++;
+    });
+
+    const keys = Object.keys(weeks).sort().slice(-12); // last 12 weeks
+    if (keys.length === 0) {
+      ctx.fillStyle = theme === 'light' ? '#9898a8' : '#5c5c70';
+      ctx.font = '13px Inter, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(t().noData, W/2, H/2); return;
+    }
+
+    const pad = { t: 20, r: 20, b: 34, l: 40 };
+    const cW = W - pad.l - pad.r;
+    const cH = H - pad.t - pad.b;
+    const barW = cW / keys.length;
+
+    // Grid lines at 0%, 25%, 50%, 75%, 100%
+    [0, 25, 50, 75, 100].forEach(pct => {
+      const y = pad.t + cH - (pct / 100) * cH;
+      ctx.strokeStyle = theme === 'light' ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.07)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+      ctx.fillStyle = theme === 'light' ? '#9898a8' : '#5c5c70';
+      ctx.font = '10px Inter, sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(pct + '%', pad.l - 5, y + 3);
+    });
+
+    keys.forEach((wk, i) => {
+      const d = weeks[wk];
+      const rate = d.applied > 0 ? d.responded / d.applied : 0;
+      const bH = rate * cH;
+      const x = pad.l + i * barW + 4;
+      const y = pad.t + cH - bH;
+
+      // Bar gradient: blue → purple
+      const grad = ctx.createLinearGradient(x, y, x, y + bH);
+      grad.addColorStop(0, '#3b82f6');
+      grad.addColorStop(1, '#8b5cf6');
+      ctx.fillStyle = grad;
+      ctx.globalAlpha = 0.85;
+      if (bH > 0) {
+        ctx.beginPath(); ctx.roundRect(x, y, barW - 8, bH, 4); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      // % label on bar
+      if (bH > 14) {
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 10px Inter, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(Math.round(rate * 100) + '%', x + (barW-8)/2, y + bH - 4);
+      } else if (rate > 0) {
+        ctx.fillStyle = theme === 'light' ? '#111118' : '#f0f0f4';
+        ctx.font = '10px Inter, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(Math.round(rate * 100) + '%', x + (barW-8)/2, y - 4);
+      }
+
+      // Applied count dot label
+      ctx.fillStyle = theme === 'light' ? '#9898a8' : '#5c5c70';
+      ctx.font = '10px Inter, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('n=' + d.applied, x + (barW-8)/2, pad.t + cH + 12);
+
+      // Week label
+      ctx.fillText(wk.slice(5), x + (barW-8)/2, pad.t + cH + 24);
     });
   }
 
@@ -1831,6 +2048,66 @@ canvas { max-width: 100%; }
       toast(tr.toastBackup);
     }
   }
+  function exportPDF() {
+    const tr = t();
+    if (jobs.length === 0) return toast(tr.toastNoData, 'error');
+    // Build a print-friendly page in a new window
+    const statusColors = { Aplicado:'#3b82f6', Screening:'#f59e0b', Entrevista:'#8b5cf6', Oferta:'#10b981', Rechazado:'#ef4444' };
+    const rows = jobs.map(j => {
+      const color = statusColors[j.status] || '#888';
+      const days = daysInStage(j);
+      const daysStr = days !== null ? ` (${days}d)` : '';
+      return `<tr>
+        <td><strong>${escapeHtml(j.company)}</strong></td>
+        <td>${escapeHtml(j.position)}</td>
+        <td><span style="background:${color};color:#fff;padding:2px 8px;border-radius:20px;font-size:11px">${escapeHtml(j.status)}</span>${daysStr}</td>
+        <td>${escapeHtml(j.date || '')}</td>
+        <td>${escapeHtml(j.salary || '')}</td>
+        <td>${escapeHtml(j.location || '')}</td>
+        <td style="max-width:200px;font-size:11px;white-space:pre-wrap">${escapeHtml(j.notes || '')}</td>
+      </tr>`;
+    }).join('');
+    const total = jobs.length;
+    const interviews = jobs.filter(j => ['Entrevista','Oferta'].includes(j.status)).length;
+    const offers = jobs.filter(j => j.status === 'Oferta').length;
+    const rejected = jobs.filter(j => j.status === 'Rechazado').length;
+    const pct = n => total > 0 ? Math.round(n/total*100) + '%' : '0%';
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>Job Tracker Report</title>
+<style>
+  body { font-family: Inter, Arial, sans-serif; font-size: 13px; color: #111; margin: 0; padding: 24px; }
+  h1 { font-size: 20px; margin: 0 0 4px; color: #1e293b; }
+  .subtitle { color: #64748b; font-size: 12px; margin-bottom: 20px; }
+  .kpis { display: flex; gap: 16px; margin-bottom: 20px; }
+  .kpi { background: #f1f5f9; border-radius: 8px; padding: 10px 16px; text-align: center; flex: 1; }
+  .kpi-val { font-size: 22px; font-weight: 700; color: #3b82f6; }
+  .kpi-lbl { font-size: 11px; color: #64748b; margin-top: 2px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #f1f5f9; text-align: left; padding: 7px 10px; font-size: 11px; color: #475569; border-bottom: 2px solid #e2e8f0; }
+  td { padding: 6px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+  tr:nth-child(even) td { background: #fafafa; }
+  @media print { @page { margin: 15mm; } }
+</style></head><body>
+<h1>Job Tracker — Reporte</h1>
+<div class="subtitle">Generado el ${new Date().toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-US', {year:'numeric',month:'long',day:'numeric'})} · ${total} aplicaciones</div>
+<div class="kpis">
+  <div class="kpi"><div class="kpi-val">${total}</div><div class="kpi-lbl">Total</div></div>
+  <div class="kpi"><div class="kpi-val">${pct(interviews)}</div><div class="kpi-lbl">Entrevistas</div></div>
+  <div class="kpi"><div class="kpi-val">${pct(offers)}</div><div class="kpi-lbl">Ofertas</div></div>
+  <div class="kpi"><div class="kpi-val">${pct(rejected)}</div><div class="kpi-lbl">Rechazados</div></div>
+</div>
+<table>
+  <thead><tr><th>Empresa</th><th>Puesto</th><th>Estado</th><th>Fecha</th><th>Salario</th><th>Ubicación</th><th>Notas</th></tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+</body></html>`;
+    const w = window.open('', '_blank', 'width=900,height=700');
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 400);
+  }
+
   async function importJSON() {
     if (window.electronAPI) {
       const r = await window.electronAPI.loadBackup();
@@ -2002,10 +2279,68 @@ canvas { max-width: 100%; }
     if (!$('view-dashboard').classList.contains('hidden')) renderDashboard();
   }
 
+  // ====== MOBILE NAV ======
+  function toggleSidebar() {
+    const s = document.querySelector('.sidebar');
+    const o = $('sidebarOverlay');
+    const open = s.classList.toggle('open');
+    if (open) o.classList.add('active');
+    else o.classList.remove('active');
+  }
+  function closeSidebar() {
+    document.querySelector('.sidebar').classList.remove('open');
+    $('sidebarOverlay').classList.remove('active');
+  }
+  function switchMobileTab(view) {
+    // reuse existing tab logic
+    document.querySelectorAll('.tab').forEach(b => {
+      b.classList.toggle('active', b.dataset.view === view);
+    });
+    document.querySelectorAll('.mobile-nav-btn[data-view]').forEach(b => {
+      b.classList.toggle('active', b.dataset.view === view);
+    });
+    document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+    const el = $('view-' + view);
+    if (el) el.classList.remove('hidden');
+    if (view === 'dashboard') renderDashboard();
+    closeSidebar();
+  }
+  // Sync mobile nav when sidebar tabs are clicked
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = btn.dataset.view;
+      document.querySelectorAll('.mobile-nav-btn[data-view]').forEach(b => {
+        b.classList.toggle('active', b.dataset.view === v);
+      });
+    });
+  });
+
   // ====== INIT ======
   applyTheme();
   applyLang();
   renderAll();
 </script>
+<!-- ─── SIDEBAR OVERLAY ──────────────────────────────── -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- ─── MOBILE BOTTOM NAV ────────────────────────────── -->
+<nav class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-btn active" data-view="table" onclick="switchMobileTab('table')">
+    <span class="mn-icon">⊞</span>
+    <span data-i18n="tabTable">Tabla</span>
+  </button>
+  <button class="mobile-nav-btn" data-view="kanban" onclick="switchMobileTab('kanban')">
+    <span class="mn-icon">⊟</span>
+    <span data-i18n="tabKanban">Kanban</span>
+  </button>
+  <button class="mobile-nav-btn" data-view="dashboard" onclick="switchMobileTab('dashboard')">
+    <span class="mn-icon">◎</span>
+    <span data-i18n="tabDashboard">Dashboard</span>
+  </button>
+  <button class="mobile-nav-btn" onclick="openModal()">
+    <span class="mn-icon">＋</span>
+    <span data-i18n="btnNew">Nueva</span>
+  </button>
+</nav>
 </body>
 </html>
