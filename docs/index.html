@@ -463,3 +463,1250 @@ canvas{max-width:100%}
 }
 </style>
 </head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="10" width="3" height="5" rx="1" fill="#111110"/>
+        <rect x="6" y="7"  width="3" height="8" rx="1" fill="#111110"/>
+        <rect x="11" y="3" width="3" height="12" rx="1" fill="#111110"/>
+      </svg>
+    </div>
+    <span class="logo-name">Aplico</span>
+  </div>
+
+  <span class="sidebar-label" data-i18n="sideViews">Vistas</span>
+  <button class="nav-item active" data-view="table" onclick="switchView('table',this)">
+    <span class="nav-icon">⊞</span>
+    <span data-i18n="tabTable">Aplicaciones</span>
+    <span class="nav-badge" id="badge-table">0</span>
+  </button>
+  <button class="nav-item" data-view="kanban" onclick="switchView('kanban',this)">
+    <span class="nav-icon">▦</span>
+    <span data-i18n="tabKanban">Pipeline</span>
+  </button>
+  <button class="nav-item" data-view="dashboard" onclick="switchView('dashboard',this)">
+    <span class="nav-icon">◎</span>
+    <span data-i18n="tabDashboard">Métricas</span>
+  </button>
+  <button class="nav-item" data-view="calendar" onclick="switchView('calendar',this)">
+    <span class="nav-icon">▦</span>
+    <span data-i18n="tabCalendar">Calendario</span>
+    <span class="nav-badge" id="badge-cal">0</span>
+  </button>
+
+  <span class="sidebar-label" data-i18n="sideStates">Estados</span>
+  <div class="sidebar-states" id="sidebarStates"></div>
+
+  <div class="sidebar-bottom">
+    <button class="nav-item" onclick="exportCSV()">
+      <span class="nav-icon">↓</span>
+      <span data-i18n="btnCsv">Export CSV</span>
+    </button>
+    <button class="nav-item" onclick="exportJSON()">
+      <span class="nav-icon">💾</span>
+      <span data-i18n="btnBackup">Backup</span>
+    </button>
+    <button class="nav-item" onclick="importJSON()">
+      <span class="nav-icon">↑</span>
+      <span data-i18n="btnRestore">Restaurar</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-bc">
+      <span>Workspace</span>
+      <span class="sep">/</span>
+      <span class="cur" id="topbar-view-name">Aplicaciones</span>
+    </div>
+
+    <div class="topbar-search">
+      <span class="search-ic">⌕</span>
+      <input type="text" id="search" data-i18n-placeholder="searchPlaceholder" placeholder="Buscar empresa, puesto, tag...">
+    </div>
+
+    <div class="topbar-right">
+      <button class="icon-btn" id="langBtn" onclick="toggleLang()" title="Idioma">🌐</button>
+      <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Tema">☀️</button>
+      <button class="btn-sec btn-danger" onclick="confirmClearAll()" data-i18n="btnClear">🗑 Limpiar</button>
+      <button class="btn-lime" onclick="openModal()">
+        <span>+</span> <span data-i18n="btnNew">Nueva</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- PAGE CONTENT -->
+  <main class="page">
+
+    <!-- REMINDERS -->
+    <div id="reminders"></div>
+
+    <!-- ===== TABLE VIEW ===== -->
+    <div id="view-table" class="view">
+      <div class="page-header">
+        <h1 class="page-title" data-i18n="tabTable">Aplicaciones</h1>
+        <p class="page-sub" id="page-subtitle"></p>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stats-grid" id="stats"></div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="view-toggle">
+          <button class="vbtn active" id="vbtn-table" onclick="setSubView('table')">⊞ <span data-i18n="subTable">Tabla</span></button>
+          <button class="vbtn" id="vbtn-kanban2" onclick="switchView('kanban', document.querySelector('[data-view=kanban]'))">▦ <span data-i18n="tabKanban">Kanban</span></button>
+        </div>
+
+        <button class="chip active" data-filter="" onclick="setChipFilter('',this)" data-i18n="filterAll">Todas</button>
+        <button class="chip" data-filter="Aplicado"    onclick="setChipFilter('Aplicado',this)"   data-i18n="sApplied">Aplicado</button>
+        <button class="chip" data-filter="Screening"   onclick="setChipFilter('Screening',this)">Screening</button>
+        <button class="chip" data-filter="Entrevista"  onclick="setChipFilter('Entrevista',this)"  data-i18n="sInterview">Entrevista</button>
+        <button class="chip" data-filter="Oferta"      onclick="setChipFilter('Oferta',this)"      data-i18n="sOffer">Oferta</button>
+        <button class="chip" data-filter="Rechazado"   onclick="setChipFilter('Rechazado',this)"   data-i18n="sRejected">Rechazado</button>
+
+        <span class="tb-sep"></span>
+
+        <select class="tb-sel" id="filterLocation" onchange="renderTable()">
+          <option value="" data-i18n="filterAllLocations">Todas las ubicaciones</option>
+        </select>
+
+        <select class="tb-sel" id="sortSelect" onchange="onSortChange()">
+          <option value="date-desc"     data-i18n="sortRecent">Más recientes</option>
+          <option value="date-asc"      data-i18n="sortOldest">Más antiguas</option>
+          <option value="company-asc"   data-i18n="sortCompany">Empresa A-Z</option>
+          <option value="status-asc"    data-i18n="sortStatus">Estado</option>
+        </select>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap overflow-x">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable('company')" data-sort="company"><span data-i18n="colCompany">Empresa</span> <span class="sort-arrow">↕</span></th>
+              <th onclick="sortTable('status')"  data-sort="status" ><span data-i18n="colStatus">Estado</span>  <span class="sort-arrow">↕</span></th>
+              <th onclick="sortTable('date')"    data-sort="date"   ><span data-i18n="colDate">Aplicada</span>  <span class="sort-arrow">↕</span></th>
+              <th><span data-i18n="colSalary">Salario</span></th>
+              <th><span data-i18n="colNext">Próximo paso</span></th>
+              <th><span data-i18n="colRating">★</span></th>
+              <th><span data-i18n="colTags">Tags</span></th>
+              <th><span data-i18n="colActions">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+        <div id="emptyState" class="empty-state" style="display:none">
+          <span class="empty-icon">📋</span>
+          <p data-i18n="emptyMsg">Aún no hay aplicaciones. ¡Agrega la primera!</p>
+        </div>
+      </div>
+    </div><!-- /view-table -->
+
+    <!-- ===== KANBAN VIEW ===== -->
+    <div id="view-kanban" class="view hidden">
+      <div class="page-header">
+        <h1 class="page-title" data-i18n="tabKanban">Pipeline</h1>
+      </div>
+      <div class="kanban-board" id="kanban"></div>
+    </div>
+
+    <!-- ===== DASHBOARD VIEW ===== -->
+    <div id="view-dashboard" class="view hidden">
+      <div class="page-header">
+        <h1 class="page-title" data-i18n="tabDashboard">Métricas</h1>
+      </div>
+      <div class="dash-grid">
+        <div class="chart-card wide">
+          <h3 data-i18n="chartFunnel">🎯 Embudo de conversión</h3>
+          <div class="funnel" id="funnel"></div>
+        </div>
+        <div class="chart-card">
+          <h3 data-i18n="chartTimeline">📅 Aplicaciones por mes</h3>
+          <canvas id="chartTimeline" height="200"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 data-i18n="chartCompanies">🏢 Top empresas</h3>
+          <canvas id="chartCompanies" height="200"></canvas>
+        </div>
+        <div class="chart-card wide">
+          <h3 data-i18n="chartKPIs">📈 Métricas clave</h3>
+          <div class="kpi-grid" id="kpis"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CALENDAR VIEW ===== -->
+    <div id="view-calendar" class="view hidden">
+      <div class="page-header">
+        <h1 class="page-title" data-i18n="tabCalendar">Calendario</h1>
+      </div>
+      <div class="cal-nav">
+        <button class="btn-sec" onclick="calPrev()">‹</button>
+        <h3 id="calTitle"></h3>
+        <button class="btn-sec" onclick="calNext()">›</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-legend">
+        <span class="cdot" style="background:#fbbf24"></span><span data-i18n="sInterview">Entrevista</span>
+        <span class="cdot" style="background:#34d399;margin-left:10px"></span><span data-i18n="sOffer">Próximo paso</span>
+        <span class="cdot" style="background:#60a5fa;margin-left:10px"></span><span data-i18n="sApplied">Aplicación</span>
+      </div>
+    </div>
+
+  </main><!-- /page -->
+</div><!-- /main -->
+
+<!-- ===== FORM MODAL ===== -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-ttl" id="modalTitle">Nueva aplicación</span>
+      <button class="modal-x" onclick="closeModal()">✕</button>
+    </div>
+    <form id="jobForm">
+      <input type="hidden" id="jobId">
+      <div class="form-grid">
+
+        <div class="fg ac-wrap">
+          <label data-i18n="fCompany">Empresa *</label>
+          <input type="text" id="company" required autocomplete="off">
+          <div class="ac-list" id="companyList"></div>
+        </div>
+
+        <div class="fg ac-wrap">
+          <label data-i18n="fPosition">Puesto *</label>
+          <input type="text" id="position" required autocomplete="off">
+          <div class="ac-list" id="positionList"></div>
+        </div>
+
+        <div class="fg">
+          <label data-i18n="fStatus">Estado</label>
+          <select id="status">
+            <option value="Aplicado"   data-i18n="sApplied">Aplicado</option>
+            <option value="Screening">Screening</option>
+            <option value="Entrevista" data-i18n="sInterview">Entrevista</option>
+            <option value="Oferta"     data-i18n="sOffer">Oferta</option>
+            <option value="Rechazado"  data-i18n="sRejected">Rechazado</option>
+          </select>
+        </div>
+
+        <div class="fg">
+          <label data-i18n="fDate">Fecha aplicación</label>
+          <input type="date" id="date">
+        </div>
+
+        <div class="fg">
+          <label data-i18n="fSalary">Salario</label>
+          <input type="text" id="salary" placeholder="$50k – $70k">
+        </div>
+
+        <div class="fg">
+          <label data-i18n="fLocation">Ubicación</label>
+          <input type="text" id="location" data-i18n-placeholder="fLocationPh" placeholder="Remoto / CDMX">
+        </div>
+
+        <div class="fg">
+          <label data-i18n="fContact">Contacto</label>
+          <input type="text" id="contact">
+        </div>
+
+        <div class="fg">
+          <label data-i18n="fNextStep">Próximo paso</label>
+          <input type="text" id="nextStep">
+        </div>
+
+        <div class="fg">
+          <label data-i18n="fNextDate">Fecha próximo paso</label>
+          <input type="date" id="nextStepDate">
+        </div>
+
+        <div class="fg">
+          <label data-i18n="fLastUpdate">Última actualización</label>
+          <input type="date" id="lastUpdate">
+        </div>
+
+        <div class="fg full">
+          <label data-i18n="fLink">Link de la vacante</label>
+          <input type="url" id="link" placeholder="https://...">
+        </div>
+
+        <div class="fg full">
+          <label data-i18n="fRating">Evaluación</label>
+          <div class="star-row" id="starRating">
+            <span class="star" data-val="1">★</span>
+            <span class="star" data-val="2">★</span>
+            <span class="star" data-val="3">★</span>
+            <span class="star" data-val="4">★</span>
+            <span class="star" data-val="5">★</span>
+          </div>
+          <input type="hidden" id="rating" value="0">
+        </div>
+
+        <div class="fg full">
+          <label data-i18n="fTags">Tags</label>
+          <div class="tags-wrap">
+            <div id="tagsDisplay" style="display:contents"></div>
+            <input type="text" id="tagsInput" placeholder="urgente, remoto… Enter para agregar">
+          </div>
+          <input type="hidden" id="tags" value="">
+        </div>
+
+        <div class="fg full">
+          <label data-i18n="fNotes">Notas</label>
+          <textarea id="notes"></textarea>
+        </div>
+
+      </div><!-- /form-grid -->
+      <div class="modal-ft">
+        <button type="button" class="btn-sec" onclick="closeModal()" data-i18n="btnCancel">Cancelar</button>
+        <button type="submit" class="btn-lime" data-i18n="btnSave">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== CONFIRM MODAL ===== -->
+<div class="confirm-overlay" id="confirmModal">
+  <div class="confirm-box">
+    <h3 id="confirmTitle"></h3>
+    <p id="confirmMsg"></p>
+    <div class="confirm-acts">
+      <button class="btn-sec" onclick="closeConfirm()" data-i18n="btnCancel">Cancelar</button>
+      <button class="btn-sec btn-danger" id="confirmOkBtn" data-i18n="btnConfirm">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- FILE INPUT (hidden) -->
+<input type="file" id="fileInput" accept=".json" style="display:none">
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+<script>
+/* ============================================================
+   i18n
+   ============================================================ */
+const TRANSLATIONS = {
+  es: {
+    subtitle:'Controla cada aplicación, entrevista y oferta',
+    sideViews:'Vistas', sideStates:'Estados',
+    tabTable:'Aplicaciones', tabKanban:'Pipeline',
+    tabDashboard:'Métricas', tabCalendar:'Calendario',
+    subTable:'Tabla',
+    searchPlaceholder:'Buscar empresa, puesto, tag...',
+    btnNew:'Nueva', btnCsv:'Export CSV', btnBackup:'Backup',
+    btnRestore:'Restaurar', btnClear:'Limpiar todo',
+    btnCancel:'Cancelar', btnSave:'Guardar', btnConfirm:'Confirmar',
+    filterAll:'Todas', filterAllLocations:'Todas las ubicaciones',
+    sortRecent:'Más recientes', sortOldest:'Más antiguas',
+    sortCompany:'Empresa A-Z', sortStatus:'Estado',
+    sApplied:'Aplicado', sInterview:'Entrevista',
+    sOffer:'Oferta', sRejected:'Rechazado',
+    colCompany:'Empresa', colPosition:'Puesto', colStatus:'Estado',
+    colDate:'Aplicada', colSalary:'Salario', colLocation:'Ubicación',
+    colContact:'Contacto', colNext:'Próximo paso',
+    colActions:'Acciones', colRating:'★', colTags:'Tags',
+    emptyMsg:'Aún no hay aplicaciones. ¡Agrega la primera!',
+    chartFunnel:'🎯 Embudo de conversión',
+    chartTimeline:'📅 Aplicaciones por mes',
+    chartCompanies:'🏢 Top empresas',
+    chartKPIs:'📈 Métricas clave',
+    fCompany:'Empresa *', fPosition:'Puesto *', fStatus:'Estado',
+    fDate:'Fecha aplicación', fSalary:'Salario',
+    fLocation:'Ubicación', fLocationPh:'Remoto / CDMX',
+    fContact:'Contacto', fNextStep:'Próximo paso',
+    fNextDate:'Fecha próximo paso', fLastUpdate:'Última actualización',
+    fLink:'Link de la vacante', fRating:'Evaluación',
+    fTags:'Tags', fNotes:'Notas',
+    modalNew:'Nueva aplicación', modalEdit:'Editar aplicación',
+    reminderTitle:'🔔 Recordatorios',
+    reminderUpcoming:(c,s,d)=>`📅 <strong>${c}</strong> — ${s} el ${d}`,
+    reminderStale:(c)=>`⏰ <strong>${c}</strong> aplicada hace +7 días, considera hacer follow-up`,
+    statTotal:'Total', statApplied:'Aplicado', statScreening:'Screening',
+    statInterview:'Entrevista', statOffer:'Oferta', statRejected:'Rechazado',
+    kpiInterview:'Tasa entrevista', kpiOffer:'Tasa oferta',
+    kpiRejected:'Tasa rechazo', kpiActive:'Activas',
+    funnelApplied:'Aplicado', funnelScreening:'Screening',
+    funnelInterview:'Entrevista', funnelOffer:'Oferta',
+    movedTo:(s)=>`Movido a ${s}`,
+    toastAdded:'Agregada ✓', toastUpdated:'Actualizada ✓',
+    toastDeleted:'Eliminada ✓', toastAllClear:'Todo limpio ✓',
+    toastCsv:'CSV exportado ✓', toastBackup:'Backup descargado ✓',
+    toastImported:(n)=>`${n} importadas ✓`,
+    toastNoData:'Nada que exportar', toastBadFile:'Archivo inválido',
+    confirmDelete:'¿Eliminar esta aplicación?',
+    confirmDeleteMsg:'Esta acción no se puede deshacer.',
+    confirmClear:'¿Borrar TODAS las aplicaciones?',
+    confirmClearMsg:'Se eliminarán todas tus aplicaciones. Esta acción no se puede deshacer.',
+    confirmImport:(n)=>`¿Importar ${n} aplicaciones? Se agregarán a las existentes.`,
+    noData:'Sin datos', langBtn:'EN', themeDark:'🌙', themeLight:'☀️',
+    topbarViews:{table:'Aplicaciones',kanban:'Pipeline',dashboard:'Métricas',calendar:'Calendario'},
+    pageSubtitle:(total,offers)=>`${total} aplicaciones activas · <span class="hi">${offers} ofertas</span> esperando respuesta`,
+  },
+  en: {
+    subtitle:'Track every application, interview and offer',
+    sideViews:'Views', sideStates:'Status',
+    tabTable:'Applications', tabKanban:'Pipeline',
+    tabDashboard:'Metrics', tabCalendar:'Calendar',
+    subTable:'Table',
+    searchPlaceholder:'Search company, position, tag...',
+    btnNew:'New', btnCsv:'Export CSV', btnBackup:'Backup',
+    btnRestore:'Restore', btnClear:'Clear all',
+    btnCancel:'Cancel', btnSave:'Save', btnConfirm:'Confirm',
+    filterAll:'All', filterAllLocations:'All locations',
+    sortRecent:'Most recent', sortOldest:'Oldest first',
+    sortCompany:'Company A-Z', sortStatus:'Status',
+    sApplied:'Applied', sInterview:'Interview',
+    sOffer:'Offer', sRejected:'Rejected',
+    colCompany:'Company', colPosition:'Position', colStatus:'Status',
+    colDate:'Applied', colSalary:'Salary', colLocation:'Location',
+    colContact:'Contact', colNext:'Next step',
+    colActions:'Actions', colRating:'★', colTags:'Tags',
+    emptyMsg:'No applications yet. Add your first one!',
+    chartFunnel:'🎯 Conversion funnel',
+    chartTimeline:'📅 Applications per month',
+    chartCompanies:'🏢 Top companies',
+    chartKPIs:'📈 Key metrics',
+    fCompany:'Company *', fPosition:'Position *', fStatus:'Status',
+    fDate:'Application date', fSalary:'Salary',
+    fLocation:'Location', fLocationPh:'Remote / New York',
+    fContact:'Contact', fNextStep:'Next step',
+    fNextDate:'Next step date', fLastUpdate:'Last update',
+    fLink:'Job posting link', fRating:'Rating',
+    fTags:'Tags', fNotes:'Notes',
+    modalNew:'New application', modalEdit:'Edit application',
+    reminderTitle:'🔔 Reminders',
+    reminderUpcoming:(c,s,d)=>`📅 <strong>${c}</strong> — ${s} on ${d}`,
+    reminderStale:(c)=>`⏰ <strong>${c}</strong> applied 7+ days ago, consider following up`,
+    statTotal:'Total', statApplied:'Applied', statScreening:'Screening',
+    statInterview:'Interview', statOffer:'Offer', statRejected:'Rejected',
+    kpiInterview:'Interview rate', kpiOffer:'Offer rate',
+    kpiRejected:'Rejection rate', kpiActive:'Active',
+    funnelApplied:'Applied', funnelScreening:'Screening',
+    funnelInterview:'Interview', funnelOffer:'Offer',
+    movedTo:(s)=>`Moved to ${s}`,
+    toastAdded:'Added ✓', toastUpdated:'Updated ✓',
+    toastDeleted:'Deleted ✓', toastAllClear:'All cleared ✓',
+    toastCsv:'CSV exported ✓', toastBackup:'Backup downloaded ✓',
+    toastImported:(n)=>`${n} imported ✓`,
+    toastNoData:'Nothing to export', toastBadFile:'Invalid file',
+    confirmDelete:'Delete this application?',
+    confirmDeleteMsg:'This action cannot be undone.',
+    confirmClear:'Delete ALL applications?',
+    confirmClearMsg:'All your applications will be removed. This action cannot be undone.',
+    confirmImport:(n)=>`Import ${n} applications? They will be added to existing ones.`,
+    noData:'No data', langBtn:'ES', themeDark:'🌙', themeLight:'☀️',
+    topbarViews:{table:'Applications',kanban:'Pipeline',dashboard:'Metrics',calendar:'Calendar'},
+    pageSubtitle:(total,offers)=>`${total} active applications · <span class="hi">${offers} offers</span> waiting`,
+  }
+};
+
+let lang  = localStorage.getItem('lang')  || 'es';
+let theme = localStorage.getItem('theme') || 'dark';
+const t = () => TRANSLATIONS[lang];
+const $ = id => document.getElementById(id);
+const esc = s => !s ? '' : String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  const tr = t();
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.dataset.i18n;
+    if (tr[k] && typeof tr[k] === 'string') el.textContent = tr[k];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const k = el.dataset.i18nPlaceholder;
+    if (tr[k]) el.placeholder = tr[k];
+  });
+  document.querySelectorAll('select#status option, select#filterStatus option').forEach(opt => {
+    const k = opt.dataset.i18n;
+    if (k && tr[k]) opt.textContent = tr[k];
+  });
+  $('langBtn').textContent = '🌐 ' + tr.langBtn;
+  renderAll();
+}
+
+function toggleLang() {
+  lang = lang === 'es' ? 'en' : 'es';
+  localStorage.setItem('lang', lang);
+  applyLang();
+}
+
+function applyTheme() {
+  const tr = t();
+  if (theme === 'light') {
+    document.body.classList.add('light-mode');
+    $('themeBtn').textContent = tr.themeDark;
+  } else {
+    document.body.classList.remove('light-mode');
+    $('themeBtn').textContent = tr.themeLight;
+  }
+}
+
+function toggleTheme() {
+  theme = theme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('theme', theme);
+  applyTheme();
+}
+
+/* ============================================================
+   CORE DATA
+   ============================================================ */
+let jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
+let sortKey = 'date', sortDir = -1;
+let activeFilter = '';
+
+function save() {
+  localStorage.setItem('jobs', JSON.stringify(jobs));
+  renderAll();
+}
+
+function toast(msg, type = 'success') {
+  const el = $('toast');
+  el.textContent = msg;
+  el.style.background = type === 'error'
+    ? 'linear-gradient(135deg,#ef4444,#dc2626)'
+    : 'linear-gradient(135deg,#10b981,#059669)';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+/* ============================================================
+   CONFIRM DIALOG
+   ============================================================ */
+let _cb = null;
+function showConfirm(title, msg, cb) {
+  $('confirmTitle').textContent = title;
+  $('confirmMsg').textContent   = msg;
+  _cb = cb;
+  $('confirmModal').classList.add('active');
+}
+function closeConfirm() { $('confirmModal').classList.remove('active'); _cb = null; }
+$('confirmOkBtn').addEventListener('click', () => { if (_cb) _cb(); closeConfirm(); });
+
+/* ============================================================
+   VIEW SWITCHING
+   ============================================================ */
+let currentView = 'table';
+
+function switchView(view, btn) {
+  currentView = view;
+  // sidebar nav
+  document.querySelectorAll('.nav-item[data-view]').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  // views
+  document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+  $('view-' + view).classList.remove('hidden');
+  // topbar label
+  const tr = t();
+  $('topbar-view-name').textContent = tr.topbarViews[view] || view;
+  // render on switch
+  if (view === 'dashboard') renderDashboard();
+  if (view === 'kanban')    renderKanban();
+  if (view === 'calendar')  renderCalendar();
+  if (view === 'table')     renderTable();
+}
+
+/* ============================================================
+   SORT
+   ============================================================ */
+function sortTable(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = 1; }
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    th.classList.toggle('sorted', th.dataset.sort === key);
+    const arrow = th.querySelector('.sort-arrow');
+    if (arrow) arrow.textContent = th.dataset.sort === key ? (sortDir === 1 ? '↑' : '↓') : '↕';
+  });
+  renderTable();
+}
+
+function onSortChange() {
+  const val = $('sortSelect').value;
+  const [k, d] = val.split('-');
+  sortKey = k; sortDir = d === 'desc' ? -1 : 1;
+  renderTable();
+}
+
+/* ============================================================
+   CHIP FILTER
+   ============================================================ */
+function setChipFilter(val, el) {
+  activeFilter = val;
+  document.querySelectorAll('.chip[data-filter]').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderTable();
+}
+
+/* ============================================================
+   REMINDERS
+   ============================================================ */
+function renderReminders() {
+  const tr = t();
+  const today    = new Date(); today.setHours(0,0,0,0);
+  const in3days  = new Date(today); in3days.setDate(today.getDate()+3);
+  const weekAgo  = new Date(today); weekAgo.setDate(today.getDate()-7);
+  const upcoming = jobs.filter(j => {
+    if (!j.nextStepDate) return false;
+    const d = new Date(j.nextStepDate);
+    return d >= today && d <= in3days;
+  });
+  const stale = jobs.filter(j => {
+    if (!['Aplicado','Applied'].includes(j.status)) return false;
+    const d = new Date(j.date || j.lastUpdate);
+    return d < weekAgo;
+  });
+  const c = $('reminders');
+  if (!upcoming.length && !stale.length) { c.innerHTML=''; return; }
+  let html = `<div class="reminders-box"><h4>${tr.reminderTitle}</h4>`;
+  upcoming.forEach(j => { html += `<div class="rem-item">${tr.reminderUpcoming(esc(j.company), esc(j.nextStep), j.nextStepDate)}</div>`; });
+  stale.forEach(j   => { html += `<div class="rem-item">${tr.reminderStale(esc(j.company))}</div>`; });
+  html += '</div>';
+  c.innerHTML = html;
+}
+
+/* ============================================================
+   SPARKLINE HELPER
+   ============================================================ */
+function drawSparkline(canvas, data, color) {
+  if (!canvas || !data.length) return;
+  const w = canvas.width, h = canvas.height;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,w,h);
+  const max = Math.max(...data, 1);
+  const step = w / (data.length - 1 || 1);
+  ctx.beginPath();
+  data.forEach((v, i) => {
+    const x = i * step;
+    const y = h - (v / max) * h;
+    i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+/* ============================================================
+   STATS + SIDEBAR STATES
+   ============================================================ */
+const STATUS_META = {
+  Aplicado:   { color:'#60a5fa', bg:'rgba(96,165,250,.15)',  icon:'📤' },
+  Screening:  { color:'#fbbf24', bg:'rgba(251,191,36,.15)',  icon:'🔍' },
+  Entrevista: { color:'#c084fc', bg:'rgba(192,132,252,.15)', icon:'🎤' },
+  Oferta:     { color:'#34d399', bg:'rgba(52,211,153,.15)',  icon:'🎉' },
+  Rechazado:  { color:'#f87171', bg:'rgba(248,113,113,.15)', icon:'✗'  },
+};
+const AV_COLORS = ['#60a5fa','#fbbf24','#c084fc','#34d399','#f87171','#fb923c','#38bdf8','#a78bfa'];
+
+function getAvatarColor(company) {
+  let h = 0;
+  for (let i=0; i<company.length; i++) h = company.charCodeAt(i) + ((h<<5)-h);
+  return AV_COLORS[Math.abs(h) % AV_COLORS.length];
+}
+
+function renderStats() {
+  const tr    = t();
+  const total = jobs.length;
+  const by    = s => jobs.filter(j => j.status === s).length;
+
+  // build monthly sparkline data (last 6 months)
+  const now  = new Date();
+  const monthly = Array.from({length:6}, (_,i) => {
+    const d = new Date(now.getFullYear(), now.getMonth()-5+i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    return jobs.filter(j => (j.date||'').startsWith(key)).length;
+  });
+
+  const cards = [
+    { label: tr.statTotal,     value: total,                spark: monthly,                color:'#c8f135', icon:'📋', iconBg:'rgba(200,241,53,.15)' },
+    { label: tr.statInterview, value: by('Entrevista'),      spark: [],                     color:'#c084fc', icon:'🎤', iconBg:'rgba(192,132,252,.15)' },
+    { label: tr.statOffer,     value: by('Oferta'),          spark: [],                     color:'#34d399', icon:'🎉', iconBg:'rgba(52,211,153,.15)' },
+    { label: tr.statRejected,  value: by('Rechazado'),       spark: [],                     color:'#f87171', icon:'✗',  iconBg:'rgba(248,113,113,.15)' },
+  ];
+
+  $('stats').innerHTML = cards.map((c,i) => `
+    <div class="stat-card">
+      <div class="stat-card-top">
+        <span class="stat-label">${c.label}</span>
+        <span class="stat-icon" style="background:${c.iconBg}">${c.icon}</span>
+      </div>
+      <div class="stat-value">${c.value}</div>
+      <div class="stat-trend">${c.spark.length ? 'Últimos 6 meses' : '&nbsp;'}</div>
+      ${c.spark.length ? `<canvas class="sparkline" id="spark-${i}" width="80" height="36"></canvas>` : ''}
+    </div>`).join('');
+
+  // draw sparklines after DOM insertion
+  setTimeout(() => {
+    const s = $('spark-0');
+    if (s) drawSparkline(s, monthly, '#c8f135');
+  }, 0);
+
+  // page subtitle
+  const offers = by('Oferta');
+  const sub = $('page-subtitle');
+  if (sub) sub.innerHTML = t().pageSubtitle(total, offers);
+
+  // sidebar state counts
+  $('badge-table').textContent = total;
+  const ss = $('sidebarStates');
+  const states = ['Aplicado','Screening','Entrevista','Oferta','Rechazado'];
+  const stateLabels = {
+    Aplicado: tr.sApplied, Screening:'Screening',
+    Entrevista: tr.sInterview, Oferta: tr.sOffer, Rechazado: tr.sRejected
+  };
+  ss.innerHTML = states.map(s => {
+    const m = STATUS_META[s];
+    return `<div class="state-item" onclick="setChipFilter('${s}', null); switchView('table', document.querySelector('[data-view=table]'))">
+      <span class="state-dot" style="background:${m.color}"></span>
+      <span>${stateLabels[s]}</span>
+      <span class="state-count">${by(s)}</span>
+    </div>`;
+  }).join('');
+
+  // calendar badge (upcoming next steps)
+  const today = new Date().toISOString().split('T')[0];
+  const calEvs = jobs.filter(j => j.nextStepDate && j.nextStepDate >= today).length;
+  $('badge-cal').textContent = calEvs || '';
+  $('badge-cal').style.display = calEvs ? '' : 'none';
+}
+
+/* ============================================================
+   LOCATION FILTER
+   ============================================================ */
+function updateLocationFilter() {
+  const locs = [...new Set(jobs.map(j=>j.location).filter(Boolean))].sort();
+  const sel  = $('filterLocation');
+  const cur  = sel.value;
+  sel.innerHTML = `<option value="">${t().filterAllLocations}</option>`;
+  locs.forEach(l => {
+    const o = document.createElement('option');
+    o.value = l; o.textContent = l;
+    sel.appendChild(o);
+  });
+  if (cur) sel.value = cur;
+}
+
+/* ============================================================
+   STATUS HELPERS
+   ============================================================ */
+function getStatusLabel(s) {
+  const tr = t();
+  return {Aplicado:tr.sApplied,Entrevista:tr.sInterview,Oferta:tr.sOffer,Rechazado:tr.sRejected,Screening:'Screening'}[s] || s;
+}
+function getBadgeClass(s) {
+  return {Aplicado:'badge-aplicado',Screening:'badge-screening',Entrevista:'badge-entrevista',Oferta:'badge-oferta',Rechazado:'badge-rechazado'}[s] || '';
+}
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+function renderTable() {
+  const q   = ($('search').value || '').toLowerCase();
+  const fl  = ($('filterLocation').value || '');
+  const fs  = activeFilter;
+
+  let filtered = jobs.filter(j => {
+    const mq = !q || j.company.toLowerCase().includes(q) || j.position.toLowerCase().includes(q) || (j.tags||'').toLowerCase().includes(q);
+    const ms = !fs || j.status === fs;
+    const ml = !fl || j.location === fl;
+    return mq && ms && ml;
+  });
+
+  filtered = [...filtered].sort((a,b) => {
+    const va = (a[sortKey]||'').toLowerCase();
+    const vb = (b[sortKey]||'').toLowerCase();
+    return va < vb ? -sortDir : va > vb ? sortDir : 0;
+  });
+
+  const tbody = $('tableBody'), empty = $('emptyState');
+  if (!filtered.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = filtered.map(j => {
+    const av  = getAvatarColor(j.company);
+    const ini = (j.company||'?')[0].toUpperCase();
+    const stars = j.rating
+      ? `<span style="color:#fbbf24;letter-spacing:-1px">${'★'.repeat(j.rating)}</span><span style="color:var(--text3);letter-spacing:-1px">${'★'.repeat(5-j.rating)}</span>`
+      : '—';
+    const tagHtml = j.tags
+      ? j.tags.split(',').map(tg=>tg.trim()).filter(Boolean).map(tg=>`<span class="tag-pill">${esc(tg)}</span>`).join('')
+      : '—';
+    return `<tr>
+      <td>
+        <div class="co-cell">
+          <div class="co-av" style="background:${av}">${ini}</div>
+          <div>
+            <div class="co-name">${esc(j.company)}<a class="li-btn" href="https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(j.company)}" target="_blank" title="LinkedIn">in</a></div>
+            <div class="co-sub">${esc(j.position)}${j.location?` · ${esc(j.location)}`:''}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="badge ${getBadgeClass(j.status)}">${getStatusLabel(j.status)}</span></td>
+      <td style="color:var(--text2);font-size:12px">${j.date||'—'}</td>
+      <td style="color:var(--text2)">${esc(j.salary||'—')}</td>
+      <td style="font-size:12px">${esc(j.nextStep||'—')}${j.nextStepDate?`<br><span style="color:var(--text3);font-size:11px">${j.nextStepDate}</span>`:''}</td>
+      <td>${stars}</td>
+      <td>${tagHtml}</td>
+      <td>
+        <div class="row-actions">
+          <button class="row-btn" onclick="editJob('${j.id}')">✏ Edit</button>
+          <button class="row-btn del" onclick="confirmDelete('${j.id}')">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ============================================================
+   KANBAN
+   ============================================================ */
+function renderKanban() {
+  const tr = t();
+  const COLS = [
+    {key:'Aplicado',   label:tr.funnelApplied,   color:'var(--ca)'},
+    {key:'Screening',  label:tr.funnelScreening,  color:'var(--cs)'},
+    {key:'Entrevista', label:tr.funnelInterview,  color:'var(--ci)'},
+    {key:'Oferta',     label:tr.funnelOffer,      color:'var(--co)'},
+    {key:'Rechazado',  label:tr.sRejected,        color:'var(--cr)'},
+  ];
+  $('kanban').innerHTML = COLS.map(col => {
+    const items = jobs.filter(j => j.status === col.key);
+    return `<div class="kanban-col" data-status="${col.key}"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleDrop(event,'${col.key}')">
+      <div class="kc-head">
+        <div class="kc-title">
+          <span class="state-dot" style="background:${col.color}"></span>
+          <span>${col.label}</span>
+        </div>
+        <span class="kc-count">${items.length}</span>
+      </div>
+      ${items.map(j=>`
+        <div class="kanban-card" draggable="true" data-id="${j.id}"
+          ondragstart="handleDragStart(event,'${j.id}')"
+          ondragend="this.classList.remove('dragging')"
+          onclick="editJob('${j.id}')">
+          <div class="kc-co">${esc(j.company)}</div>
+          <div class="kc-pos">${esc(j.position)}</div>
+          <div class="kc-meta">
+            <span>${j.date||''}</span>
+            <span>${esc(j.salary||'')}</span>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+function handleDragStart(e, id) {
+  e.dataTransfer.setData('text/plain', id);
+  e.target.classList.add('dragging');
+}
+function handleDrop(e, status) {
+  e.preventDefault();
+  document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drag-over'));
+  const id  = e.dataTransfer.getData('text/plain');
+  const job = jobs.find(j => j.id === id);
+  if (job && job.status !== status) {
+    job.status     = status;
+    job.lastUpdate = new Date().toISOString().split('T')[0];
+    save();
+    toast(t().movedTo(status));
+  }
+}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+function renderDashboard() {
+  const tr    = t();
+  const total = jobs.length || 1;
+  const stages = [
+    { name:tr.funnelApplied,   count:jobs.length,                                                              color:'#60a5fa' },
+    { name:tr.funnelScreening, count:jobs.filter(j=>['Screening','Entrevista','Oferta'].includes(j.status)).length, color:'#fbbf24' },
+    { name:tr.funnelInterview, count:jobs.filter(j=>['Entrevista','Oferta'].includes(j.status)).length,            color:'#c084fc' },
+    { name:tr.funnelOffer,     count:jobs.filter(j=>j.status==='Oferta').length,                                   color:'#34d399' },
+  ];
+  $('funnel').innerHTML = stages.map((s,i) => {
+    const w = Math.max(18, (s.count/total)*100);
+    return `<div class="funnel-bar" style="background:${s.color};width:${w}%;transition:width .6s ${i*.12}s ease">
+      <span>${s.name}</span><span>${s.count}</span>
+    </div>`;
+  }).join('');
+
+  const rate   = n => total > 0 ? Math.round((n/total)*100) : 0;
+  const iCount = jobs.filter(j=>['Entrevista','Oferta'].includes(j.status)).length;
+  const oCount = jobs.filter(j=>j.status==='Oferta').length;
+  const rCount = jobs.filter(j=>j.status==='Rechazado').length;
+  const aCount = jobs.filter(j=>!['Oferta','Rechazado'].includes(j.status)).length;
+  $('kpis').innerHTML = [
+    {lbl:tr.kpiInterview, val:`${rate(iCount)}%`},
+    {lbl:tr.kpiOffer,     val:`${rate(oCount)}%`},
+    {lbl:tr.kpiRejected,  val:`${rate(rCount)}%`},
+    {lbl:tr.kpiActive,    val:aCount},
+  ].map(k=>`<div class="kpi-card"><div class="kpi-val">${k.val}</div><div class="kpi-lbl">${k.lbl}</div></div>`).join('');
+
+  drawTimelineChart();
+  drawCompaniesChart();
+}
+
+function drawTimelineChart() {
+  const canvas = $('chartTimeline');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth;
+  const H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const months = {};
+  jobs.forEach(j => { if (!j.date) return; const m = j.date.substring(0,7); months[m]=(months[m]||0)+1; });
+  const keys = Object.keys(months).sort();
+  if (!keys.length) {
+    ctx.fillStyle='var(--text3)'; ctx.font='13px var(--font)'; ctx.textAlign='center';
+    ctx.fillText(t().noData,W/2,H/2); return;
+  }
+  const max = Math.max(...Object.values(months));
+  const pad = 28, bw = (W-pad*2)/keys.length;
+  keys.forEach((k,i) => {
+    const v  = months[k];
+    const bh = ((H-pad*2)*v)/max;
+    const x  = pad+i*bw+3;
+    const y  = H-pad-bh;
+    const g  = ctx.createLinearGradient(0,y,0,H-pad);
+    g.addColorStop(0,'#c8f135'); g.addColorStop(1,'rgba(200,241,53,.3)');
+    ctx.fillStyle=g;
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(x,y,bw-6,bh,4) : ctx.rect(x,y,bw-6,bh);
+    ctx.fill();
+    ctx.fillStyle=theme==='light'?'#1a1a18':'#a09e99'; ctx.font='10px var(--font)'; ctx.textAlign='center';
+    ctx.fillText(v, x+(bw-6)/2, y-4);
+    ctx.fillStyle='#6b6966'; ctx.font='9px var(--font)';
+    ctx.fillText(k.substring(5), x+(bw-6)/2, H-8);
+  });
+}
+
+function drawCompaniesChart() {
+  const canvas = $('chartCompanies');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth;
+  const H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const counts={};
+  jobs.forEach(j => { counts[j.company]=(counts[j.company]||0)+1; });
+  const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if (!top.length) {
+    ctx.fillStyle='#6b6966'; ctx.font='13px var(--font)'; ctx.textAlign='center';
+    ctx.fillText(t().noData,W/2,H/2); return;
+  }
+  const max  = top[0][1];
+  const rowH = (H-16)/top.length-6;
+  top.forEach(([name,val],i) => {
+    const y  = 8+i*(rowH+6);
+    const bw = ((W-140)*val)/max;
+    const g  = ctx.createLinearGradient(130,0,130+bw,0);
+    g.addColorStop(0,'#c8f135'); g.addColorStop(1,'rgba(200,241,53,.4)');
+    ctx.fillStyle=g;
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(130,y,bw,rowH,4) : ctx.rect(130,y,bw,rowH);
+    ctx.fill();
+    ctx.fillStyle=theme==='light'?'#1a1a18':'#f0ede8'; ctx.font='12px var(--font)'; ctx.textAlign='right';
+    ctx.fillText(name.substring(0,15), 125, y+rowH/2+4);
+    ctx.textAlign='left'; ctx.fillStyle='#a09e99'; ctx.font='11px var(--font)';
+    ctx.fillText(val, 135+bw, y+rowH/2+4);
+  });
+}
+
+/* ============================================================
+   CALENDAR
+   ============================================================ */
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+const MONTH_NAMES={
+  es:['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+  en:['January','February','March','April','May','June','July','August','September','October','November','December']
+};
+const DAY_NAMES={
+  es:['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],
+  en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+};
+
+function renderCalendar() {
+  const mNames = MONTH_NAMES[lang]||MONTH_NAMES.es;
+  const dNames = DAY_NAMES[lang]||DAY_NAMES.es;
+  $('calTitle').textContent = `${mNames[calMonth]} ${calYear}`;
+  const today    = new Date().toISOString().split('T')[0];
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInM  = new Date(calYear, calMonth+1, 0).getDate();
+  const events   = {};
+  const tr = t();
+  jobs.forEach(j => {
+    const addEv = (date, label, type) => {
+      if (!date) return;
+      if (!events[date]) events[date]=[];
+      events[date].push({label,type});
+    };
+    if (j.date) addEv(j.date, j.company, 'applied');
+    if (j.nextStepDate) addEv(j.nextStepDate,`${j.company} – ${j.nextStep||tr.colNext}`, j.status==='Entrevista'?'interview':'next');
+  });
+  let html = dNames.map(d=>`<div class="cal-dn">${d}</div>`).join
+('');
+  for (let i=0;i<firstDay;i++) html+=`<div class="cal-day empty"></div>`;
+  for (let d=1;d<=daysInM;d++) {
+    const ds = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const evs = events[ds]||[];
+    html+=`<div class="cal-day${ds===today?' today':''}">
+      <div class="cal-dn2">${d}</div>
+      ${evs.map(ev=>`<div class="cal-ev ${ev.type}" title="${esc(ev.label)}">${esc(ev.label)}</div>`).join('')}
+    </div>`;
+  }
+  $('calGrid').innerHTML = html;
+}
+function calPrev(){ calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); }
+function calNext(){ calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar(); }
+
+/* ============================================================
+   MODAL OPEN / CLOSE
+   ============================================================ */
+function openModal(job=null) {
+  $('modal').classList.add('active');
+  $('jobForm').reset();
+  const tr = t();
+  if (job) {
+    $('modalTitle').textContent = tr.modalEdit;
+    Object.keys(job).forEach(k => { if ($(k)) $(k).value = job[k]||''; });
+    $('jobId').value = job.id;
+    setStars(job.rating||0);
+    renderTagChips(job.tags||'');
+  } else {
+    $('modalTitle').textContent = tr.modalNew;
+    $('jobId').value = '';
+    $('date').value  = new Date().toISOString().split('T')[0];
+    setStars(0);
+    renderTagChips('');
+  }
+}
+function closeModal(){ $('modal').classList.remove('active'); }
+function editJob(id){ const j=jobs.find(j=>j.id===id); if(j) openModal(j); }
+
+/* ============================================================
+   DELETE / CLEAR
+   ============================================================ */
+function confirmDelete(id) {
+  const tr = t();
+  showConfirm(tr.confirmDelete, tr.confirmDeleteMsg, () => {
+    jobs = jobs.filter(j=>j.id!==id);
+    save(); toast(tr.toastDeleted);
+  });
+}
+function confirmClearAll() {
+  const tr = t();
+  showConfirm(tr.confirmClear, tr.confirmClearMsg, () => {
+    jobs=[]; save(); toast(tr.toastAllClear);
+  });
+}
+
+/* ============================================================
+   FORM SUBMIT
+   ============================================================ */
+$('jobForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const tr = t();
+  const id = $('jobId').value;
+  const data = {
+    id:         id || Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+    company:    $('company').value.trim(),
+    position:   $('position').value.trim(),
+    status:     $('status').value,
+    date:       $('date').value,
+    salary:     $('salary').value.trim(),
+    location:   $('location').value.trim(),
+    contact:    $('contact').value.trim(),
+    nextStep:   $('nextStep').value.trim(),
+    nextStepDate: $('nextStepDate').value,
+    lastUpdate: $('lastUpdate').value || new Date().toISOString().split('T')[0],
+    link:       $('link').value.trim(),
+    rating:     parseInt($('rating').value)||0,
+    tags:       $('tags').value.trim(),
+    notes:      $('notes').value.trim(),
+  };
+  if (id) { jobs=jobs.map(j=>j.id===id?data:j); toast(tr.toastUpdated); }
+  else    { jobs.unshift(data); toast(tr.toastAdded); }
+  save(); closeModal();
+});
+
+/* ============================================================
+   EXPORT / IMPORT
+   ============================================================ */
+function exportCSV() {
+  const tr = t();
+  if (!jobs.length) return toast(tr.toastNoData,'error');
+  const h = [tr.colCompany,tr.colPosition,tr.colStatus,tr.colDate,tr.colSalary,tr.colLocation,tr.colContact,tr.colNext,'NextDate','Link','Rating','Tags','Notes'];
+  const rows = jobs.map(j=>[j.company,j.position,j.status,j.date,j.salary,j.location,j.contact,j.nextStep,j.nextStepDate,j.link,j.rating,j.tags,j.notes]
+    .map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
+  dlFile('\uFEFF'+[h.join(','),...rows].join('\n'),'csv','text/csv');
+  toast(tr.toastCsv);
+}
+
+async function exportJSON() {
+  const tr = t();
+  if (!jobs.length) return toast(tr.toastNoData,'error');
+  const data = JSON.stringify({version:2,lang,exportedAt:new Date().toISOString(),jobs},null,2);
+  if (window.electronAPI) {
+    const r = await window.electronAPI.saveBackup(data);
+    if (r.success) toast(tr.toastBackup);
+  } else {
+    dlFile(data,'json','application/json');
+    toast(tr.toastBackup);
+  }
+}
+
+async function importJSON() {
+  if (window.electronAPI) {
+    const r = await window.electronAPI.loadBackup();
+    if (r.success) handleImport(r.data);
+  } else { $('fileInput').click(); }
+}
+
+$('fileInput').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => handleImport(ev.target.result);
+  r.readAsText(f);
+  e.target.value='';
+});
+
+function handleImport(raw) {
+  const tr = t();
+  try {
+    const d = JSON.parse(raw);
+    const imported = Array.isArray(d) ? d : d.jobs;
+    if (!Array.isArray(imported)) throw new Error('invalid');
+    showConfirm(tr.btnRestore, tr.confirmImport(imported.length), () => {
+      jobs=[...imported,...jobs];
+      save(); toast(tr.toastImported(imported.length));
+    });
+  } catch { toast(tr.toastBadFile,'error'); }
+}
+
+function dlFile(content,ext,type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content],{type}));
+  a.download = `aplico-${new Date().toISOString().split('T')[0]}.${ext}`;
+  a.click();
+}
+
+/* ============================================================
+   AUTOCOMPLETE
+   ============================================================ */
+function setupAC(inputId, listId, getter) {
+  const input=$( inputId), list=$(listId);
+  input.addEventListener('input', () => {
+    const q = input.value.toLowerCase().trim();
+    if (!q) { list.classList.remove('show'); return; }
+    const sug = [...new Set(jobs.map(getter).filter(Boolean))]
+      .filter(s=>s.toLowerCase().includes(q) && s.toLowerCase()!==q)
+      .slice(0,6);
+    if (!sug.length) { list.classList.remove('show'); return; }
+    list.innerHTML = sug.map(s=>`<div class="ac-item">${esc(s)}</div>`).join('');
+    list.classList.add('show');
+    list.querySelectorAll('.ac-item').forEach(item => {
+      item.addEventListener('click', () => { input.value=item.textContent; list.classList.remove('show'); });
+    });
+  });
+  input.addEventListener('blur', () => setTimeout(()=>list.classList.remove('show'),200));
+}
+
+/* ============================================================
+   STARS
+   ============================================================ */
+function setStars(val) {
+  $('rating').value = val;
+  document.querySelectorAll('.star').forEach(s => s.classList.toggle('active', parseInt(s.dataset.val)<=val));
+}
+document.querySelectorAll('.star').forEach(s => {
+  s.addEventListener('click',     () => setStars(parseInt(s.dataset.val)));
+  s.addEventListener('mouseover', () => document.querySelectorAll('.star').forEach(x=>x.classList.toggle('active',parseInt(x.dataset.val)<=parseInt(s.dataset.val))));
+  s.addEventListener('mouseout',  () => setStars(parseInt($('rating').value)));
+});
+
+/* ============================================================
+   TAGS INPUT
+   ============================================================ */
+function renderTagChips(str) {
+  $('tags').value = str;
+  const arr = str ? str.split(',').map(t=>t.trim()).filter(Boolean) : [];
+  $('tagsDisplay').innerHTML = arr.map(t=>
+    `<span class="tag-chip">${esc(t)}<button type="button" onclick="removeTag('${esc(t)}')">×</button></span>`
+  ).join('');
+}
+function removeTag(tag) {
+  const arr = ($('tags').value||'').split(',').map(t=>t.trim()).filter(t=>t&&t!==tag);
+  renderTagChips(arr.join(','));
+}
+$('tagsInput').addEventListener('keydown', e => {
+  if (e.key==='Enter'||e.key===',') {
+    e.preventDefault();
+    const val = $('tagsInput').value.replace(/,/g,'').trim();
+    if (!val) return;
+    const ex = ($('tags').value||'').split(',').map(t=>t.trim()).filter(Boolean);
+    if (!ex.includes(val)) ex.push(val);
+    renderTagChips(ex.join(','));
+    $('tagsInput').value='';
+  }
+});
+
+/* ============================================================
+   RENDER ALL
+   ============================================================ */
+function renderAll() {
+  updateLocationFilter();
+  renderReminders();
+  renderStats();
+  renderTable();
+  if (!$('view-kanban').classList.contains('hidden'))    renderKanban();
+  if (!$('view-dashboard').classList.contains('hidden')) renderDashboard();
+  if (!$('view-calendar').classList.contains('hidden'))  renderCalendar();
+}
+
+/* ============================================================
+   EVENT LISTENERS
+   ============================================================ */
+$('search').addEventListener('input', renderTable);
+$('modal').addEventListener('click', e => { if (e.target.id==='modal') closeModal(); });
+$('confirmModal').addEventListener('click', e => { if (e.target.id==='confirmModal') closeConfirm(); });
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') { closeModal(); closeConfirm(); }
+  if ((e.ctrlKey||e.metaKey) && e.key==='n') { e.preventDefault(); openModal(); }
+});
+
+setupAC('company',  'companyList',  j=>j.company);
+setupAC('position', 'positionList', j=>j.position);
+
+/* ============================================================
+   INIT
+   ============================================================ */
+applyTheme();
+applyLang();
+renderAll();
+</script>
+
+<!-- PWA Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/job-tracker/service-worker.js');
+  });
+}
+</script>
+
+</body>
+</html>  
+  
